@@ -1,0 +1,6 @@
+# Ignore common files that shouldn't be deployed
+.DS_Store
+Thumbs.db
+*.log
+.env
+node_modules/
