@@ -339,17 +339,11 @@
                             </div>
                         </div>
                         <div class="social-links">
-                            <a href="https://linkedin.com/" class="social-link">
+                            <a href="https://www.linkedin.com/in/anup-dutta-9198171b6/" class="social-link" target="_blank">
                                 <i class="fab fa-linkedin"></i>
                             </a>
-                            <a href="https://github.com/" class="social-link">
+                            <a href="https://github.com/anup2003D" class="social-link" target="_blank">
                                 <i class="fab fa-github"></i>
-                            </a>
-                            <a href="https://twitter.com/" class="social-link">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            <a href="https://instagram.com/" class="social-link">
-                                <i class="fab fa-instagram"></i>
                             </a>
                         </div>
                     </div>
@@ -378,7 +372,7 @@
         <footer class="footer">
             <div class="container">
                 <div class="footer-content">
-                    <p>&copy; 2025 Anup Dutta. All rights reserved.</p>
+                    <p>&copy; <script>document.write(new Date().getFullYear())</script> Anup Dutta. All rights reserved.</p>
                     <div class="footer-links">
                         <a href="Goldman Sachs Application.png" download class="footer-link">Download CV</a>
                     </div>
@@ -457,14 +451,15 @@
 
             // Intersection Observer for animations
             const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
+                threshold: 0.05,
+                rootMargin: '0px 0px -30px 0px'
             };
 
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('animate');
+                        observer.unobserve(entry.target);
                     }
                 });
             }, observerOptions);
@@ -508,15 +503,7 @@
                 });
             }
 
-            // Parallax effect for hero section
-            window.addEventListener('scroll', () => {
-                const scrolled = window.pageYOffset;
-                const hero = document.querySelector('.hero');
-                if (hero) {
-                    const parallaxSpeed = 0.5;
-                    hero.style.transform = `translateY(${scrolled * parallaxSpeed}px)`;
-                }
-            });
+            // NOTE: Parallax effect removed — it was causing hero to overlap other sections on scroll
 
             // Highlight active section in navigation
             const sections = document.querySelectorAll('section');
