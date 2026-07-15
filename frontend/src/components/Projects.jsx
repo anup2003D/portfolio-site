@@ -1,7 +1,19 @@
+import { useState, useMemo } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 
 export default function Projects() {
   const { projects } = usePortfolio();
+  const [activeFilter, setActiveFilter] = useState('All');
+
+  const categories = useMemo(() => {
+    const allCategories = projects.map(p => p.category).filter(Boolean);
+    return ['All', ...new Set(allCategories)];
+  }, [projects]);
+
+  const filteredProjects = useMemo(() => {
+    if (activeFilter === 'All') return projects;
+    return projects.filter(p => p.category === activeFilter);
+  }, [projects, activeFilter]);
 
   if (!projects.length) return null;
 
@@ -12,8 +24,21 @@ export default function Projects() {
           <h2 className="section-title">Featured Projects</h2>
           <div className="section-line" />
         </div>
+
+        <div className="project-filters reveal">
+          {categories.map(category => (
+            <button
+              key={category}
+              className={`filter-btn ${activeFilter === category ? 'active' : ''}`}
+              onClick={() => setActiveFilter(category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
         <div className="portfolio-grid reveal-stagger">
-          {projects.map((project) => (
+          {filteredProjects.map((project) => (
             <div key={project._id} className="portfolio-card">
               <div className="portfolio-image">
                 <img src={project.image || '/Profile CV.jpg'} alt={project.title} />
