@@ -84,7 +84,7 @@ export default function Hero() {
           </div>
           <div className="hero-image">
             <div className="image-wrapper">
-              <img src="/Profile CV.jpg" alt={portfolio.name} className="profile-img" />
+              <img src={`${import.meta.env.BASE_URL}Profile_CV.jpg`} alt={portfolio.name} className="profile-img" />
             </div>
           </div>
         </div>
