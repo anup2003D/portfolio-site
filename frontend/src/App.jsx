@@ -8,124 +8,105 @@ import Experience from './components/Experience';
 import Projects from './components/Projects';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import LoadingScreen from './components/LoadingScreen';
 
 /* ─────────────────────────────────────────
    STARFIELD CANVAS
 ───────────────────────────────────────── */
 function Starfield() {
   const canvasRef = useRef(null);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let raf;
-
     const stars = [];
     const STAR_COUNT = 160;
-
-    const resize = () => {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
     const init = () => {
       stars.length = 0;
       for (let i = 0; i < STAR_COUNT; i++) {
         stars.push({
-          x:     Math.random() * canvas.width,
-          y:     Math.random() * canvas.height,
-          r:     Math.random() * 1.2 + 0.2,
-          alpha: Math.random() * 0.6 + 0.1,
-          speed: Math.random() * 0.015 + 0.005,
-          phase: Math.random() * Math.PI * 2,
+          x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+          r: Math.random() * 1.2 + 0.2, alpha: Math.random() * 0.6 + 0.1,
+          speed: Math.random() * 0.015 + 0.005, phase: Math.random() * Math.PI * 2,
         });
       }
     };
-
-    resize();
-    init();
-
+    resize(); init();
     const onResize = () => { resize(); init(); };
     window.addEventListener('resize', onResize);
-
     const draw = (t) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       stars.forEach((s) => {
         const a = s.alpha * (0.6 + 0.4 * Math.sin(t * s.speed + s.phase));
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${a})`;
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${a})`; ctx.fill();
       });
       raf = requestAnimationFrame(draw);
     };
-
     raf = requestAnimationFrame(draw);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('resize', onResize);
-    };
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); };
   }, []);
-
   return <canvas ref={canvasRef} className="starfield" aria-hidden="true" />;
 }
 
 /* ─────────────────────────────────────────
-   CUSTOM CURSOR
+   CREWMATE SVG CURSOR
+   Replaces the plain dot+ring with an actual
+   mini Among Us crewmate shape that follows
+   the mouse.
 ───────────────────────────────────────── */
-function CustomCursor({ killMode }) {
-  const dotRef  = useRef(null);
-  const ringRef = useRef(null);
-  const mouse   = useRef({ x: 0, y: 0 });
-  const ring    = useRef({ x: 0, y: 0 });
+function CrewmateCursor({ killMode }) {
+  const cursorRef = useRef(null);
+  const mouse     = useRef({ x: -100, y: -100 });
+  const pos       = useRef({ x: -100, y: -100 });
 
   useEffect(() => {
-    const onMove = (e) => {
-      mouse.current = { x: e.clientX, y: e.clientY };
-    };
-
-    const onOver = (e) => {
-      const interactive = e.target.closest(
-        'a, button, .btn, .nav-link, .social-link, .filter-btn, .project-link, .skill-card, .project-card'
-      );
-      ringRef.current?.classList.toggle('hovering', !!interactive);
-    };
-
+    const onMove = (e) => { mouse.current = { x: e.clientX, y: e.clientY }; };
     let raf;
     const animate = () => {
-      ring.current.x += (mouse.current.x - ring.current.x) * 0.12;
-      ring.current.y += (mouse.current.y - ring.current.y) * 0.12;
-
-      if (dotRef.current) {
-        dotRef.current.style.left = `${mouse.current.x}px`;
-        dotRef.current.style.top  = `${mouse.current.y}px`;
-      }
-      if (ringRef.current) {
-        ringRef.current.style.left = `${ring.current.x}px`;
-        ringRef.current.style.top  = `${ring.current.y}px`;
+      pos.current.x += (mouse.current.x - pos.current.x) * 0.18;
+      pos.current.y += (mouse.current.y - pos.current.y) * 0.18;
+      if (cursorRef.current) {
+        cursorRef.current.style.transform =
+          `translate(${pos.current.x - 14}px, ${pos.current.y - 20}px)`;
       }
       raf = requestAnimationFrame(animate);
     };
-
     window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseover', onOver);
     raf = requestAnimationFrame(animate);
-
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseover', onOver);
-      cancelAnimationFrame(raf);
-    };
+    return () => { window.removeEventListener('mousemove', onMove); cancelAnimationFrame(raf); };
   }, []);
 
+  // Hide on touch devices
   if (typeof window !== 'undefined' && 'ontouchstart' in window) return null;
 
   return (
-    <>
-      <div ref={dotRef}  className="cursor-dot" />
-      <div ref={ringRef} className={`cursor-ring ${killMode ? 'kill-mode' : ''}`} />
-    </>
+    <div
+      ref={cursorRef}
+      style={{
+        position: 'fixed', top: 0, left: 0, zIndex: 99999,
+        pointerEvents: 'none', willChange: 'transform',
+        filter: killMode
+          ? 'drop-shadow(0 0 8px #ff4655) drop-shadow(0 0 20px rgba(255,70,85,0.5))'
+          : 'drop-shadow(0 0 4px rgba(255,255,255,0.3))',
+        transition: 'filter 0.2s ease',
+      }}
+    >
+      <svg width="28" height="36" viewBox="0 0 60 78" fill="none">
+        {/* Backpack */}
+        <rect x="46" y="22" width="10" height="18" rx="4" fill={killMode ? '#8b0000' : '#555'} />
+        {/* Body */}
+        <ellipse cx="28" cy="30" rx="20" ry="26" fill={killMode ? '#ff4655' : '#e0e0e0'} />
+        {/* Visor */}
+        <ellipse cx="28" cy="25" rx="13" ry="10" fill="#c5e8ff" opacity="0.92" />
+        <ellipse cx="24" cy="23" rx="5" ry="4" fill="white" opacity="0.35" />
+        {/* Legs */}
+        <rect x="12" y="50" width="14" height="16" rx="5" fill={killMode ? '#cc2233' : '#aaa'} />
+        <rect x="30" y="50" width="14" height="16" rx="5" fill={killMode ? '#cc2233' : '#aaa'} />
+      </svg>
+    </div>
   );
 }
 
@@ -135,69 +116,89 @@ function CustomCursor({ killMode }) {
 function KillOverlay({ active, onDone }) {
   useEffect(() => {
     if (!active) return;
-    const t = setTimeout(onDone, 750);
+    const t = setTimeout(onDone, 900);
     return () => clearTimeout(t);
   }, [active, onDone]);
 
   return (
     <div className={`kill-overlay ${active ? 'active' : ''}`} aria-hidden="true">
       <div className="kill-scene">
-        <svg width="220" height="180" viewBox="0 0 220 180" fill="none">
-          <g style={{ animation: active ? 'killVictim 0.75s ease forwards' : 'none' }}>
-            <ellipse cx="80" cy="70" rx="32" ry="38" fill="#cccccc"/>
-            <ellipse cx="80" cy="62" rx="20" ry="15" fill="#c5e8ff" opacity="0.85"/>
-            <rect x="53" y="97" width="22" height="20" rx="7" fill="#aaaaaa"/>
-            <rect x="85" y="97" width="22" height="20" rx="7" fill="#aaaaaa"/>
-            <rect x="100" y="55" width="16" height="26" rx="6" fill="#bbbbbb"/>
+        <svg width="240" height="200" viewBox="0 0 240 200" fill="none">
+          {/* Victim (grey crewmate) */}
+          <g style={{ animation: active ? 'killVictim 0.9s ease forwards' : 'none' }}>
+            <rect x="106" y="60" width="14" height="24" rx="5" fill="#bbbbbb"/>
+            <ellipse cx="82" cy="72" rx="30" ry="36" fill="#cccccc"/>
+            <ellipse cx="82" cy="63" rx="19" ry="14" fill="#c5e8ff" opacity="0.85"/>
+            <rect x="57" y="100" width="20" height="18" rx="6" fill="#aaaaaa"/>
+            <rect x="87" y="100" width="20" height="18" rx="6" fill="#aaaaaa"/>
           </g>
-          <g style={{ animation: active ? 'killImposter 0.75s ease forwards' : 'none' }}>
-            <ellipse cx="155" cy="68" rx="30" ry="36" fill="#ff4655"/>
-            <ellipse cx="155" cy="61" rx="18" ry="13" fill="#c5e8ff" opacity="0.9"/>
-            <rect x="130" y="93" width="20" height="18" rx="6" fill="#cc2233"/>
-            <rect x="160" y="93" width="20" height="18" rx="6" fill="#cc2233"/>
-            <rect x="183" y="53" width="14" height="24" rx="5" fill="#cc2233"/>
-            <line x1="118" y1="75" x2="95" y2="85"
-              stroke="#ffffff" strokeWidth="3" strokeLinecap="round"
-              style={{ animation: active ? 'knifeStab 0.75s ease forwards' : 'none' }}
-            />
-            <polygon points="95,85 88,92 98,88"
-              fill="#ffffff"
-              style={{ animation: active ? 'knifeStab 0.75s ease forwards' : 'none' }}
-            />
+          {/* Imposter (red crewmate) */}
+          <g style={{ animation: active ? 'killImposter 0.9s ease forwards' : 'none' }}>
+            <rect x="175" y="56" width="13" height="22" rx="4" fill="#cc2233"/>
+            <ellipse cx="158" cy="70" rx="28" ry="34" fill="#ff4655"/>
+            <ellipse cx="158" cy="62" rx="17" ry="12" fill="#c5e8ff" opacity="0.9"/>
+            <rect x="135" y="96" width="18" height="17" rx="6" fill="#cc2233"/>
+            <rect x="163" y="96" width="18" height="17" rx="6" fill="#cc2233"/>
+            {/* Knife arm */}
+            <line x1="132" y1="76" x2="107" y2="88" stroke="#ffffff" strokeWidth="3.5" strokeLinecap="round"
+              style={{ animation: active ? 'knifeStab 0.9s ease forwards' : 'none' }}/>
+            <polygon points="107,88 99,96 110,91" fill="#dddddd"
+              style={{ animation: active ? 'knifeStab 0.9s ease forwards' : 'none' }}/>
           </g>
+          {/* Blood */}
           {active && (
-            <g style={{ animation: 'bloodSplat 0.75s ease forwards' }}>
-              <circle cx="82" cy="80" r="4" fill="#ff4655" opacity="0.9"/>
-              <circle cx="70" cy="72" r="3" fill="#ff4655" opacity="0.7"/>
-              <circle cx="90" cy="90" r="2.5" fill="#ff4655" opacity="0.8"/>
-              <circle cx="65" cy="85" r="2" fill="#ff4655" opacity="0.6"/>
-              <circle cx="78" cy="65" r="2" fill="#ff4655" opacity="0.5"/>
+            <g style={{ animation: 'bloodSplat 0.9s ease forwards' }}>
+              <circle cx="85"  cy="82" r="5"   fill="#ff4655" opacity="0.95"/>
+              <circle cx="72"  cy="74" r="3.5" fill="#ff4655" opacity="0.8"/>
+              <circle cx="94"  cy="93" r="3"   fill="#ff4655" opacity="0.85"/>
+              <circle cx="67"  cy="88" r="2.5" fill="#ff4655" opacity="0.7"/>
+              <circle cx="80"  cy="65" r="2"   fill="#ff4655" opacity="0.6"/>
+              <circle cx="100" cy="78" r="2"   fill="#ff4655" opacity="0.5"/>
             </g>
+          )}
+          {/* "DEAD" text */}
+          {active && (
+            <text x="120" y="160"
+              textAnchor="middle"
+              fill="rgba(255,70,85,0.9)"
+              fontSize="18"
+              fontFamily="'Orbitron', monospace"
+              fontWeight="900"
+              letterSpacing="4"
+              style={{ animation: 'deadText 0.9s ease forwards' }}
+            >
+              DEAD
+            </text>
           )}
         </svg>
 
         <style>{`
           @keyframes killVictim {
-            0%   { transform: translateX(0) rotate(0deg); opacity: 1; }
-            60%  { transform: translateX(-8px) rotate(-5deg); opacity: 1; }
-            100% { transform: translateX(-12px) rotate(-20deg) translateY(10px); opacity: 0.6; }
+            0%   { transform: translateX(0) rotate(0deg); opacity:1; }
+            50%  { transform: translateX(-10px) rotate(-8deg); opacity:1; }
+            100% { transform: translateX(-14px) rotate(-25deg) translateY(12px); opacity:0.5; }
           }
           @keyframes killImposter {
             0%   { transform: translateX(0); }
-            30%  { transform: translateX(-18px); }
-            60%  { transform: translateX(-10px); }
+            25%  { transform: translateX(-22px); }
+            55%  { transform: translateX(-12px); }
             100% { transform: translateX(0); }
           }
           @keyframes knifeStab {
-            0%   { opacity: 0; transform: translate(0, 0); }
-            20%  { opacity: 1; transform: translate(-12px, 6px); }
-            60%  { opacity: 1; transform: translate(-14px, 8px); }
-            100% { opacity: 0.5; transform: translate(-10px, 5px); }
+            0%   { opacity:0; transform:translate(0,0); }
+            15%  { opacity:1; transform:translate(-16px,8px); }
+            55%  { opacity:1; transform:translate(-18px,9px); }
+            100% { opacity:0; transform:translate(-12px,5px); }
           }
           @keyframes bloodSplat {
-            0%   { opacity: 0; transform: scale(0); }
-            40%  { opacity: 1; transform: scale(1.2); }
-            100% { opacity: 0.8; transform: scale(1); }
+            0%   { opacity:0; transform:scale(0) rotate(-20deg); }
+            35%  { opacity:1; transform:scale(1.3) rotate(0deg); }
+            100% { opacity:0.7; transform:scale(1) rotate(0deg); }
+          }
+          @keyframes deadText {
+            0%   { opacity:0; transform:scale(0.5); }
+            50%  { opacity:1; transform:scale(1.1); }
+            100% { opacity:0.9; transform:scale(1); }
           }
         `}</style>
       </div>
@@ -206,95 +207,115 @@ function KillOverlay({ active, onDone }) {
 }
 
 /* ─────────────────────────────────────────
-   SCROLL REVEAL HOOK
-   BUG FIX: Original ran with [] deps on first
-   render while loading=true, so no .reveal
-   elements existed yet and zero got observed.
-   Fix: accept `ready` flag and re-run the
-   observer only after loading completes.
+   AUDIO MANAGER
+   bg_music loops the whole session.
+   kill_sound plays on every kill animation.
+   Files live in /public/audio/
+───────────────────────────────────────── */
+function useAudio() {
+  const bgRef   = useRef(null);
+  const killRef = useRef(null);
+  const [bgStarted, setBgStarted] = useState(false);
+
+  // Initialise audio elements once
+  useEffect(() => {
+    bgRef.current   = new Audio('/audio/bg_music.mp3');
+    killRef.current = new Audio('/audio/kill_sound.mp3');
+    bgRef.current.loop   = true;
+    bgRef.current.volume = 0.25;   // background music is subtle
+    killRef.current.volume = 0.6;
+
+    return () => {
+      bgRef.current?.pause();
+      killRef.current?.pause();
+    };
+  }, []);
+
+  // Start bg music on first user interaction (browser autoplay policy)
+  useEffect(() => {
+    const start = () => {
+      if (!bgStarted && bgRef.current) {
+        bgRef.current.play().catch(() => {});
+        setBgStarted(true);
+        window.removeEventListener('click', start);
+        window.removeEventListener('keydown', start);
+      }
+    };
+    window.addEventListener('click',   start, { once: true });
+    window.addEventListener('keydown', start, { once: true });
+    return () => {
+      window.removeEventListener('click',   start);
+      window.removeEventListener('keydown', start);
+    };
+  }, [bgStarted]);
+
+  const playKillSound = useCallback(() => {
+    if (killRef.current) {
+      killRef.current.currentTime = 0;
+      killRef.current.play().catch(() => {});
+    }
+  }, []);
+
+  return { playKillSound };
+}
+
+/* ─────────────────────────────────────────
+   SCROLL REVEAL / SLIDE / SPOTLIGHT
+   All hooks accept `ready` flag so they
+   only observe after DOM is painted.
 ───────────────────────────────────────── */
 function useScrollReveal(ready) {
   useEffect(() => {
     if (!ready) return;
-
-    // Small RAF delay so the DOM has painted
     const raf = requestAnimationFrame(() => {
       const observer = new IntersectionObserver(
         (entries) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            entry.target.classList.add('visible');
-            // Also animate skill bars inside revealed elements
-            entry.target.querySelectorAll('.skill-bar-fill').forEach((bar) => {
-              bar.classList.add('animate');
-            });
-            observer.unobserve(entry.target);
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            e.target.classList.add('visible');
+            observer.unobserve(e.target);
           });
         },
         { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
       );
-
-      document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach((el) => {
-        observer.observe(el);
-      });
-
+      document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach((el) => observer.observe(el));
       return () => observer.disconnect();
     });
-
-    return () => cancelAnimationFrame(raf);
-  }, [ready]); // re-runs when ready flips to true
-}
-
-/* ─────────────────────────────────────────
-   PROJECT CARD SLIDE-IN HOOK
-   Same fix: wait until ready
-───────────────────────────────────────── */
-function useProjectSlide(ready) {
-  useEffect(() => {
-    if (!ready) return;
-
-    const raf = requestAnimationFrame(() => {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            const card  = entry.target;
-            const index = parseInt(card.dataset.index || '0', 10);
-            setTimeout(() => card.classList.add('slide-in'), index * 90);
-            observer.unobserve(card);
-          });
-        },
-        { threshold: 0.1 }
-      );
-
-      document.querySelectorAll('.project-card').forEach((card, i) => {
-        card.dataset.index = i;
-        observer.observe(card);
-      });
-
-      return () => observer.disconnect();
-    });
-
     return () => cancelAnimationFrame(raf);
   }, [ready]);
 }
 
-/* ─────────────────────────────────────────
-   SKILL CARD SPOTLIGHT (mouse-tracking)
-───────────────────────────────────────── */
+function useProjectSlide(ready) {
+  useEffect(() => {
+    if (!ready) return;
+    const raf = requestAnimationFrame(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            const i = parseInt(e.target.dataset.index || '0', 10);
+            setTimeout(() => e.target.classList.add('slide-in'), i * 90);
+            observer.unobserve(e.target);
+          });
+        },
+        { threshold: 0.1 }
+      );
+      document.querySelectorAll('.project-card').forEach((c, i) => { c.dataset.index = i; observer.observe(c); });
+      return () => observer.disconnect();
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [ready]);
+}
+
 function useSkillSpotlight(ready) {
   useEffect(() => {
     if (!ready) return;
-
     const handler = (e) => {
       const card = e.currentTarget;
       const rect = card.getBoundingClientRect();
-      const x    = e.clientX - rect.left;
-      const y    = e.clientY - rect.top;
-      card.style.setProperty('--mx', `${x - 80}px`);
-      card.style.setProperty('--my', `${y - 80}px`);
+      card.style.setProperty('--mx', `${e.clientX - rect.left - 80}px`);
+      card.style.setProperty('--my', `${e.clientY - rect.top  - 80}px`);
     };
-
     const cards = document.querySelectorAll('.skill-card');
     cards.forEach((c) => c.addEventListener('mousemove', handler));
     return () => cards.forEach((c) => c.removeEventListener('mousemove', handler));
@@ -305,47 +326,56 @@ function useSkillSpotlight(ready) {
    MAIN APP CONTENT
 ───────────────────────────────────────── */
 function AppContent() {
-  const [killActive, setKillActive] = useState(false);
-  const [killMode,   setKillMode]   = useState(false);
-  const pendingNav   = useRef(null);
+  const [killActive,     setKillActive]     = useState(false);
+  const [killMode,       setKillMode]       = useState(false);
+  const [loadingDone,    setLoadingDone]    = useState(false);
+  const pendingNav = useRef(null);
 
-  // Get loading state to know when DOM is ready
   const { loading } = usePortfolio();
-  const ready = !loading;
+  const ready = !loading && loadingDone;
 
   useScrollReveal(ready);
   useProjectSlide(ready);
   useSkillSpotlight(ready);
 
-  /* Kill animation trigger */
+  const { playKillSound } = useAudio();
+
+  /* Kill trigger */
   const triggerKill = useCallback((callback) => {
     pendingNav.current = callback;
     setKillMode(true);
     setKillActive(true);
-  }, []);
+    playKillSound();
+  }, [playKillSound]);
 
   const onKillDone = useCallback(() => {
     setKillActive(false);
     setKillMode(false);
-    if (pendingNav.current) {
-      pendingNav.current();
-      pendingNav.current = null;
-    }
+    if (pendingNav.current) { pendingNav.current(); pendingNav.current = null; }
   }, []);
 
-  /* Intercept anchor clicks for kill animation */
+  /* Intercept ALL interactive element clicks — anchor links AND buttons */
   useEffect(() => {
     const onClick = (e) => {
-      const link = e.target.closest('a[href^="#"], a.kill-nav');
-      if (!link) return;
-      const href = link.getAttribute('href');
-      if (!href || !href.startsWith('#')) return;
+      // Anchor links that jump to a section
+      const link = e.target.closest('a[href^="#"]');
+      if (link) {
+        const href = link.getAttribute('href');
+        if (!href || href === '#') return;
+        e.preventDefault();
+        triggerKill(() => {
+          const target = document.querySelector(href);
+          if (target) target.scrollIntoView({ behavior: 'smooth' });
+        });
+        return;
+      }
 
-      e.preventDefault();
-      triggerKill(() => {
-        const target = document.querySelector(href);
-        if (target) target.scrollIntoView({ behavior: 'smooth' });
-      });
+      // Filter buttons in the projects section (non-anchor buttons)
+      const filterBtn = e.target.closest('.filter-btn');
+      if (filterBtn) {
+        triggerKill(() => filterBtn.click()); // re-fire after animation
+        return;
+      }
     };
 
     document.addEventListener('click', onClick);
@@ -354,32 +384,17 @@ function AppContent() {
 
   return (
     <>
+      {/* Loading screen shown first, dismissed when its animation ends */}
+      {!loadingDone && (
+        <LoadingScreen onDone={() => setLoadingDone(true)} />
+      )}
+
       <Starfield />
-      <CustomCursor killMode={killMode} />
+      <CrewmateCursor killMode={killMode} />
       <KillOverlay active={killActive} onDone={onKillDone} />
+      <Navigation ready={ready} />
 
-      <Navigation />
-
-      {loading ? (
-        /* Loading spinner while context fetches/falls back */
-        <div style={{
-          height: '100vh', display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', gap: '16px',
-          position: 'relative', zIndex: 1,
-        }}>
-          <div style={{
-            width: 32, height: 32,
-            border: '2px solid rgba(255,70,85,0.2)',
-            borderTop: '2px solid #ff4655',
-            borderRadius: '50%',
-            animation: 'spin 0.8s linear infinite',
-          }} />
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '3px', color: 'var(--text-muted)' }}>
-            LOADING CREWMATE...
-          </p>
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        </div>
-      ) : (
+      {!loading && loadingDone && (
         <main>
           <Hero />
           <About />

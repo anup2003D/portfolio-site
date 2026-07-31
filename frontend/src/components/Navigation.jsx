@@ -9,40 +9,43 @@ const NAV_LINKS = [
   { label: 'Contact',    href: '#contact'    },
 ];
 
-function MiniCrewmate() {
-  return (
-    <svg className="nav-crewmate" viewBox="0 0 60 78" fill="none" aria-hidden="true">
-      <ellipse cx="30" cy="32" rx="22" ry="28" fill="#ff4655" />
-      <ellipse cx="30" cy="28" rx="14" ry="10" fill="#c5e8ff" opacity="0.9" />
-      <ellipse cx="25" cy="26" rx="6" ry="4" fill="white" opacity="0.3" />
-      <rect x="44" y="24" width="12" height="20" rx="5" fill="#cc2233" />
-      <rect x="14" y="55" width="14" height="18" rx="5" fill="#cc2233" />
-      <rect x="32" y="55" width="14" height="18" rx="5" fill="#cc2233" />
-    </svg>
-  );
-}
+/*
+  FIXES:
+  1. Removed <MiniCrewmate /> from top-right (user asked to remove it)
+  2. Removed red dot from logo — now just "ANUP" in Orbitron
+  3. Active section observer now receives `ready` prop and only starts
+     after the page content has fully rendered, fixing the bug where
+     only "Home" ever showed as active
+*/
+export default function Navigation({ ready }) {
+  const [scrolled,       setScrolled]       = useState(false);
+  const [activeSection,  setActiveSection]  = useState('home');
 
-export default function Navigation() {
-  const [scrolled,  setScrolled]  = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
-
-  /* Scroll-aware glass effect */
+  /* Glass blur effect on scroll */
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  /* Active section tracker */
+  /* Active section tracker — waits for `ready` before observing
+     so sections actually exist in the DOM when we try to observe them */
   useEffect(() => {
+    if (!ready) return;
+
     const sections = NAV_LINKS.map((l) => l.href.replace('#', ''));
+
+    // Use a slightly generous rootMargin so the active state changes
+    // just before the section reaches the middle of the screen
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
         });
       },
-      { rootMargin: '-40% 0px -55% 0px' }
+      { rootMargin: '-20% 0px -70% 0px', threshold: 0 }
     );
 
     sections.forEach((id) => {
@@ -51,38 +54,38 @@ export default function Navigation() {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [ready]);
 
   return (
-    <nav className={`nav ${scrolled ? 'scrolled' : ''}`} role="navigation" aria-label="Main navigation">
-
-      {/* Logo */}
+    <nav
+      className={`nav ${scrolled ? 'scrolled' : ''}`}
+      role="navigation"
+      aria-label="Main navigation"
+    >
+      {/* Logo — plain ANUP, no red dot, no separator */}
       <a href="#home" className="nav-logo" aria-label="Back to top">
-        AN<span className="nav-logo-dot">.</span>UP
+        ANUP
       </a>
 
-      {/* Links */}
+      {/* Navigation links */}
       <ul className="nav-links" role="list">
-        {NAV_LINKS.map(({ label, href }) => (
-          <li key={href}>
-            <a
-              href={href}
-              className={`nav-link ${activeSection === href.replace('#', '') ? 'active' : ''}`}
-              style={
-                activeSection === href.replace('#', '')
-                  ? { color: 'var(--white)' }
-                  : {}
-              }
-            >
-              {label}
-            </a>
-          </li>
-        ))}
+        {NAV_LINKS.map(({ label, href }) => {
+          const sectionId = href.replace('#', '');
+          const isActive  = activeSection === sectionId;
+          return (
+            <li key={href}>
+              <a
+                href={href}
+                className={`nav-link ${isActive ? 'active' : ''}`}
+                aria-current={isActive ? 'page' : undefined}
+                style={isActive ? { color: 'var(--white)' } : {}}
+              >
+                {label}
+              </a>
+            </li>
+          );
+        })}
       </ul>
-
-      {/* Mini crewmate mascot */}
-      <MiniCrewmate />
-
     </nav>
   );
 }
