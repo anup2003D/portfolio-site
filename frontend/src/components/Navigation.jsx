@@ -1,76 +1,88 @@
-import { useState, useEffect } from 'react';
-import { usePortfolio } from '../context/PortfolioContext';
-import './Navigation.css';
+import { useEffect, useState } from 'react';
 
-const sections = [
-  { id: 'home', label: 'Home' },
-  { id: 'about', label: 'About' },
-  { id: 'skills', label: 'Skills' },
-  { id: 'experience', label: 'Experience' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'contact', label: 'Contact' },
+const NAV_LINKS = [
+  { label: 'Home',       href: '#home'       },
+  { label: 'About',      href: '#about'      },
+  { label: 'Skills',     href: '#skills'     },
+  { label: 'Experience', href: '#experience' },
+  { label: 'Projects',   href: '#projects'   },
+  { label: 'Contact',    href: '#contact'    },
 ];
 
-export default function Navigation({ theme, toggleTheme }) {
-  const { portfolio } = usePortfolio();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+function MiniCrewmate() {
+  return (
+    <svg className="nav-crewmate" viewBox="0 0 60 78" fill="none" aria-hidden="true">
+      <ellipse cx="30" cy="32" rx="22" ry="28" fill="#ff4655" />
+      <ellipse cx="30" cy="28" rx="14" ry="10" fill="#c5e8ff" opacity="0.9" />
+      <ellipse cx="25" cy="26" rx="6" ry="4" fill="white" opacity="0.3" />
+      <rect x="44" y="24" width="12" height="20" rx="5" fill="#cc2233" />
+      <rect x="14" y="55" width="14" height="18" rx="5" fill="#cc2233" />
+      <rect x="32" y="55" width="14" height="18" rx="5" fill="#cc2233" />
+    </svg>
+  );
+}
+
+export default function Navigation() {
+  const [scrolled,  setScrolled]  = useState(false);
   const [activeSection, setActiveSection] = useState('home');
 
+  /* Scroll-aware glass effect */
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 60);
-      let current = 'home';
-      sections.forEach(({ id }) => {
-        const el = document.getElementById(id);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 150) current = id;
-        }
-      });
-      setActiveSection(current);
-    };
-    window.addEventListener('scroll', onScroll);
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    setMenuOpen(false);
-  };
+  /* Active section tracker */
+  useEffect(() => {
+    const sections = NAV_LINKS.map((l) => l.href.replace('#', ''));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
+        });
+      },
+      { rootMargin: '-40% 0px -55% 0px' }
+    );
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <nav className={`navbar${scrolled ? ' scrolled' : ''}`}>
-      <div className="nav-container">
-        <div className="nav-logo" onClick={() => scrollTo('home')} style={{ cursor: 'none' }}>
-          <span className="logo-text">AD</span>
-        </div>
-        <ul className={`nav-menu${menuOpen ? ' active' : ''}`}>
-          {sections.map(({ id, label }) => (
-            <li key={id} className="nav-item">
-              <button
-                className={`nav-link${activeSection === id ? ' active' : ''}`}
-                onClick={() => scrollTo(id)}
-              >
-                {label}
-              </button>
-            </li>
-          ))}
-        </ul>
-        <div className="nav-actions">
-          <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
-            <i className={`fas fa-${theme === 'dark' ? 'sun' : 'moon'}`} />
-          </button>
-          <div
-            className={`nav-toggle${menuOpen ? ' active' : ''}`}
-            onClick={() => setMenuOpen((o) => !o)}
-          >
-            <span className="bar" />
-            <span className="bar" />
-            <span className="bar" />
-          </div>
-        </div>
-      </div>
+    <nav className={`nav ${scrolled ? 'scrolled' : ''}`} role="navigation" aria-label="Main navigation">
+
+      {/* Logo */}
+      <a href="#home" className="nav-logo" aria-label="Back to top">
+        AN<span className="nav-logo-dot">.</span>UP
+      </a>
+
+      {/* Links */}
+      <ul className="nav-links" role="list">
+        {NAV_LINKS.map(({ label, href }) => (
+          <li key={href}>
+            <a
+              href={href}
+              className={`nav-link ${activeSection === href.replace('#', '') ? 'active' : ''}`}
+              style={
+                activeSection === href.replace('#', '')
+                  ? { color: 'var(--white)' }
+                  : {}
+              }
+            >
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      {/* Mini crewmate mascot */}
+      <MiniCrewmate />
+
     </nav>
   );
 }

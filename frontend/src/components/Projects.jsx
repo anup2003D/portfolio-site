@@ -6,93 +6,101 @@ export default function Projects() {
   const [activeFilter, setActiveFilter] = useState('All');
 
   const categories = useMemo(() => {
-    const allCategories = projects.map(p => p.category).filter(Boolean);
-    return ['All', ...new Set(allCategories)];
+    const cats = projects.map((p) => p.category).filter(Boolean);
+    return ['All', ...new Set(cats)];
   }, [projects]);
 
-  const filteredProjects = useMemo(() => {
+  const filtered = useMemo(() => {
     if (activeFilter === 'All') return projects;
-    return projects.filter(p => p.category === activeFilter);
+    return projects.filter((p) => p.category === activeFilter);
   }, [projects, activeFilter]);
 
   if (!projects.length) return null;
 
   return (
-    <section id="projects" className="portfolio">
+    <section className="section" id="projects" aria-labelledby="projects-heading">
       <div className="container">
-        <div className="section-header reveal">
-          <h2 className="section-title">Featured Projects</h2>
-          <div className="section-line" />
+
+        <div className="section-eyebrow reveal">
+          <div className="section-eyebrow-line" />
+          <span className="section-eyebrow-text">05 / Completed Tasks</span>
         </div>
 
-        <div className="project-filters reveal">
-          {categories.map(category => (
+        <h2 className="section-title reveal" id="projects-heading" style={{ transitionDelay: '80ms' }}>
+          Featured <span className="accent">Projects</span>
+        </h2>
+
+        {/* Filter bar */}
+        <div className="filter-bar reveal" style={{ transitionDelay: '140ms' }}>
+          {categories.map((cat) => (
             <button
-              key={category}
-              className={`filter-btn ${activeFilter === category ? 'active' : ''}`}
-              onClick={() => setActiveFilter(category)}
+              key={cat}
+              className={`filter-btn ${activeFilter === cat ? 'active' : ''}`}
+              onClick={() => setActiveFilter(cat)}
+              aria-pressed={activeFilter === cat}
             >
-              {category}
+              {cat}
             </button>
           ))}
         </div>
 
-        <div className="portfolio-grid reveal-stagger">
-          {filteredProjects.map((project) => (
-            <div key={project._id} className="portfolio-card">
-              <div className="portfolio-image">
-                <img src={project.image || '/Profile CV.jpg'} alt={project.title} />
-                <div className="portfolio-overlay">
-                  <div className="portfolio-links">
-                    {project.demoLink && project.demoLink !== '#' && (
-                      <a href={project.demoLink} className="portfolio-link" target="_blank" rel="noreferrer" aria-label="Live Demo">
-                        <i className="fas fa-eye" />
-                      </a>
-                    )}
-                    {project.githubLink && project.githubLink !== '#' && (
-                      <a href={project.githubLink} className="portfolio-link" target="_blank" rel="noreferrer" aria-label="Source Code">
-                        <i className="fab fa-github" />
-                      </a>
-                    )}
-                    {/* If both are placeholder #, show a "coming soon" icon */}
-                    {(!project.demoLink || project.demoLink === '#') && (!project.githubLink || project.githubLink === '#') && (
-                      <span className="portfolio-link" style={{ opacity: 0.6 }} aria-label="Coming Soon">
-                        <i className="fas fa-clock" />
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="portfolio-content">
-                <h3 className="portfolio-title">{project.title}</h3>
-                <p className="portfolio-description">{project.description}</p>
-                <div className="portfolio-tech">
-                  {project.techStack?.map((tech) => (
-                    <span key={tech} className="tech-tag">{tech}</span>
+        {/* Grid — slide-in animation handled by useProjectSlide in App.jsx */}
+        <div className="projects-grid">
+          {filtered.map((project) => (
+            <article key={project._id} className="project-card">
+
+              <div className="project-category">{project.category || 'Project'}</div>
+
+              <h3 className="project-title">{project.title}</h3>
+
+              <p className="project-desc">{project.description}</p>
+
+              {project.techStack?.length > 0 && (
+                <div className="project-chips">
+                  {project.techStack.map((t) => (
+                    <span key={t} className="project-chip">{t}</span>
                   ))}
                 </div>
-                <div className="portfolio-actions">
-                  <a 
-                    href={project.githubLink && project.githubLink !== '#' ? project.githubLink : '#'} 
-                    className="portfolio-btn" 
-                    target="_blank" 
+              )}
+
+              <div className="project-links">
+                {project.githubLink && project.githubLink !== '#' && (
+                  <a
+                    href={project.githubLink}
+                    className="project-link"
+                    target="_blank"
                     rel="noreferrer"
+                    aria-label={`${project.title} GitHub repository`}
                   >
-                    <i className="fab fa-github"></i> <span>Visit Github</span>
+                    <i className="fab fa-github" aria-hidden="true" />
+                    GitHub
                   </a>
-                  <a 
-                    href={project.demoLink && project.demoLink !== '#' ? project.demoLink : '#'} 
-                    className="portfolio-btn" 
-                    target="_blank" 
+                )}
+                {project.demoLink && project.demoLink !== '#' && (
+                  <a
+                    href={project.demoLink}
+                    className="project-link"
+                    target="_blank"
                     rel="noreferrer"
+                    aria-label={`${project.title} live demo`}
                   >
-                    <i className="fas fa-external-link-alt"></i> <span>Visit Project</span>
+                    <i className="fas fa-external-link-alt" aria-hidden="true" />
+                    Live Demo
                   </a>
-                </div>
+                )}
+                {(!project.githubLink || project.githubLink === '#') &&
+                 (!project.demoLink   || project.demoLink   === '#') && (
+                  <span className="project-link" style={{ opacity: 0.4 }}>
+                    <i className="fas fa-clock" aria-hidden="true" />
+                    Coming Soon
+                  </span>
+                )}
               </div>
-            </div>
+
+            </article>
           ))}
         </div>
+
       </div>
     </section>
   );
