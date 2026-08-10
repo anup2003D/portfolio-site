@@ -267,12 +267,14 @@ export default function Hero() {
 
         {/* ── RIGHT: Crewmate ── */}
         <div className="crewmate-wrap reveal-right" style={{ transitionDelay: '200ms' }}>
-          <div
-            ref={crewmateRef}
-            className="crewmate-svg-wrap"
-            style={{ transition: 'transform 0.12s ease-out' }}
-          >
-            <CrewmateSVG size={200} />
+          <div className="crewmate-bob">
+            <div
+              ref={crewmateRef}
+              className="crewmate-svg-wrap"
+              style={{ transition: 'transform 0.8s ease-out' }}
+            >
+              <CrewmateSVG size={200} />
+            </div>
           </div>
           <div className="crewmate-glow-ring" aria-hidden="true" />
         </div>

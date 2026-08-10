@@ -61,13 +61,13 @@ const FALLBACK_PROJECTS = [
   },
   {
     _id: "fb-4",
-    title: "AI-Powered Code Reviewer",
-    description: "Intelligent code review system powered by machine learning.",
+    title: "AI-Teaching Assistant",
+    description: "RAG based project to make embedding of educational videos and get answers of the questions.",
     image: "Anime.jpg",
-    techStack: ["React", "Python", "FastAPI", "OpenAI API", "MongoDB"],
+    techStack: ["Python", "LLM", "Ollama API", "Vector Embeddings", "Streamlit"],
     category: "AI/ML",
     demoLink: "#",
-    githubLink: "#",
+    githubLink: "https://github.com/anup2003D/AI-Teaching-Assistant",
     order: 4,
   },
   {
@@ -98,6 +98,7 @@ const FALLBACK_EXPERIENCES = [
     technologies: ["Python", "Tableau", "SQL", "Power BI", "ClickUP"],
     order: 1,
   },
+
   // {
   //   _id: "fb-exp-2",
   //   company: "Freelance",

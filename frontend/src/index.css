@@ -12,8 +12,8 @@
   --red-dim:      #cc2233;
   --red-glow:     rgba(255, 70, 85, 0.18);
   --red-glow-lg:  rgba(255, 70, 85, 0.08);
-  --ice:          #c5e8ff;
-  --ice-dim:      rgba(197, 232, 255, 0.15);
+  --ice:          #d8f0ff;
+  --ice-dim:      rgba(197, 232, 255, 0.5);
   --white:        #ffffff;
   --hull:         rgba(255, 255, 255, 0.06);
   --hull-border:  rgba(255, 255, 255, 0.09);
@@ -26,8 +26,14 @@
 
   /* Text */
   --text-primary:   #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.55);
-  --text-muted:     rgba(255, 255, 255, 0.25);
+  /*
+    CHANGE POINT — TEXT COLOURS:
+    --text-secondary: body text, descriptions, labels. Increase opacity for more visibility.
+    --text-muted:     captions, small labels, timestamps. Increase opacity for more visibility.
+    Current values tuned for clear readability on the black background.
+  */
+  --text-secondary: rgba(255, 255, 255, 0.78);
+  --text-muted:     rgba(255, 255, 255, 0.5);
   --text-accent:    #ff4655;
 
   /* Typography */
@@ -515,16 +521,36 @@ ul { list-style: none; }
   will-change: transform;
 }
 
-.crewmate-svg-wrap {
+.crewmate-bob {
   position: relative;
-  animation: crewmateBob 2.8s ease-in-out infinite;
+  /*
+    CHANGE POINT — CREWMATE BOB ANIMATION SPEED:
+    Increase this number to make the bob SLOWER (e.g. 6s, 8s, 10s).
+    Decrease it to make it FASTER (e.g. 2s, 3s).
+    Currently set to 4.5s — gentle slow float with minimal vibration.
+    The original was 5.5s with a ±1deg rotation that caused the "vibration" feeling.
+    Rotation has been removed entirely to eliminate the jitter.
+  */
+  animation: crewmateBob 4.5s ease-in-out infinite;
   will-change: transform;
   filter: drop-shadow(0 0 30px rgba(255,70,85,0.35)) drop-shadow(0 0 80px rgba(255,70,85,0.12));
 }
 
+.crewmate-svg-wrap {
+  position: relative;
+  will-change: transform;
+}
+
 @keyframes crewmateBob {
-  0%, 100% { transform: translateY(0px) rotate(-1deg); }
-  50%       { transform: translateY(-18px) rotate(1deg); }
+  /*
+    CHANGE POINT — CREWMATE BOB HEIGHT:
+    The -18px below controls how high the crewmate floats up.
+    Reduce it (e.g. -10px) for a subtler bob, increase (e.g. -28px) for bigger.
+    The rotation deg values have been set to 0 to eliminate jitter/vibration.
+    If you want a slight lean, add e.g. rotate(-0.5deg) to the 50% keyframe.
+  */
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
 }
 
 .crewmate-glow-ring {
@@ -663,7 +689,11 @@ ul { list-style: none; }
   font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--text-muted);
+  /*
+    CHANGE POINT — stat label (e.g. "Years Building", "Projects Shipped")
+    Increased from --text-muted to white/55% for better readability.
+  */
+  color: rgba(255, 255, 255, 0.55);
 }
 
 /* About image */
@@ -918,7 +948,12 @@ ul { list-style: none; }
 
 .exp-company {
   font-size: 13px;
-  color: var(--text-secondary);
+  /*
+    CHANGE POINT — company name colour.
+    Currently uses --ice (bright ice blue) to stand out from the role title.
+    Change to var(--text-secondary) for plain white-ish, or var(--red) for red.
+  */
+  color: var(--ice);
   margin-bottom: 16px;
   letter-spacing: 0.5px;
 }
@@ -930,7 +965,11 @@ ul { list-style: none; }
 
 .exp-bullets li {
   font-size: 13px;
-  color: var(--text-secondary);
+  /*
+    CHANGE POINT — bullet point text colour.
+    Increase opacity for more visibility. Currently 0.82 (bright enough to read clearly).
+  */
+  color: rgba(255, 255, 255, 0.82);
   line-height: 1.8;
   padding-left: 16px;
   position: relative;
@@ -1169,7 +1208,11 @@ ul { list-style: none; }
 
 .form-input::placeholder,
 .form-textarea::placeholder {
-  color: var(--text-muted);
+  /*
+    CHANGE POINT — placeholder text colour:
+    Increase the alpha (0.45) for more visibility, decrease for subtler.
+  */
+  color: rgba(255,255,255,0.45);
   font-size: 13px;
 }
 
