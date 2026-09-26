@@ -5,10 +5,14 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Skills from './components/Skills';
 import Experience from './components/Experience';
-import Projects from './components/Projects';
+import Projects from './components/Projects2';
+//import HorizontalCarousel from "./components/HorizontalCarousel";
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
+
+
+
 
 /* ─────────────────────────────────────────
    STARFIELD CANVAS
@@ -59,8 +63,8 @@ function Starfield() {
 ───────────────────────────────────────── */
 function CrewmateCursor({ killMode }) {
   const cursorRef = useRef(null);
-  const mouse     = useRef({ x: -100, y: -100 });
-  const pos       = useRef({ x: -100, y: -100 });
+  const mouse = useRef({ x: -100, y: -100 });
+  const pos = useRef({ x: -100, y: -100 });
 
   useEffect(() => {
     const onMove = (e) => { mouse.current = { x: e.clientX, y: e.clientY }; };
@@ -126,34 +130,34 @@ function KillOverlay({ active, onDone }) {
         <svg width="240" height="200" viewBox="0 0 240 200" fill="none">
           {/* Victim (grey crewmate) */}
           <g style={{ animation: active ? 'killVictim 0.9s ease forwards' : 'none' }}>
-            <rect x="106" y="60" width="14" height="24" rx="5" fill="#bbbbbb"/>
-            <ellipse cx="82" cy="72" rx="30" ry="36" fill="#cccccc"/>
-            <ellipse cx="82" cy="63" rx="19" ry="14" fill="#c5e8ff" opacity="0.85"/>
-            <rect x="57" y="100" width="20" height="18" rx="6" fill="#aaaaaa"/>
-            <rect x="87" y="100" width="20" height="18" rx="6" fill="#aaaaaa"/>
+            <rect x="106" y="60" width="14" height="24" rx="5" fill="#bbbbbb" />
+            <ellipse cx="82" cy="72" rx="30" ry="36" fill="#cccccc" />
+            <ellipse cx="82" cy="63" rx="19" ry="14" fill="#c5e8ff" opacity="0.85" />
+            <rect x="57" y="100" width="20" height="18" rx="6" fill="#aaaaaa" />
+            <rect x="87" y="100" width="20" height="18" rx="6" fill="#aaaaaa" />
           </g>
           {/* Imposter (red crewmate) */}
           <g style={{ animation: active ? 'killImposter 0.9s ease forwards' : 'none' }}>
-            <rect x="175" y="56" width="13" height="22" rx="4" fill="#cc2233"/>
-            <ellipse cx="158" cy="70" rx="28" ry="34" fill="#ff4655"/>
-            <ellipse cx="158" cy="62" rx="17" ry="12" fill="#c5e8ff" opacity="0.9"/>
-            <rect x="135" y="96" width="18" height="17" rx="6" fill="#cc2233"/>
-            <rect x="163" y="96" width="18" height="17" rx="6" fill="#cc2233"/>
+            <rect x="175" y="56" width="13" height="22" rx="4" fill="#cc2233" />
+            <ellipse cx="158" cy="70" rx="28" ry="34" fill="#ff4655" />
+            <ellipse cx="158" cy="62" rx="17" ry="12" fill="#c5e8ff" opacity="0.9" />
+            <rect x="135" y="96" width="18" height="17" rx="6" fill="#cc2233" />
+            <rect x="163" y="96" width="18" height="17" rx="6" fill="#cc2233" />
             {/* Knife arm */}
             <line x1="132" y1="76" x2="107" y2="88" stroke="#ffffff" strokeWidth="3.5" strokeLinecap="round"
-              style={{ animation: active ? 'knifeStab 0.9s ease forwards' : 'none' }}/>
+              style={{ animation: active ? 'knifeStab 0.9s ease forwards' : 'none' }} />
             <polygon points="107,88 99,96 110,91" fill="#dddddd"
-              style={{ animation: active ? 'knifeStab 0.9s ease forwards' : 'none' }}/>
+              style={{ animation: active ? 'knifeStab 0.9s ease forwards' : 'none' }} />
           </g>
           {/* Blood */}
           {active && (
             <g style={{ animation: 'bloodSplat 0.9s ease forwards' }}>
-              <circle cx="85"  cy="82" r="5"   fill="#ff4655" opacity="0.95"/>
-              <circle cx="72"  cy="74" r="3.5" fill="#ff4655" opacity="0.8"/>
-              <circle cx="94"  cy="93" r="3"   fill="#ff4655" opacity="0.85"/>
-              <circle cx="67"  cy="88" r="2.5" fill="#ff4655" opacity="0.7"/>
-              <circle cx="80"  cy="65" r="2"   fill="#ff4655" opacity="0.6"/>
-              <circle cx="100" cy="78" r="2"   fill="#ff4655" opacity="0.5"/>
+              <circle cx="85" cy="82" r="5" fill="#ff4655" opacity="0.95" />
+              <circle cx="72" cy="74" r="3.5" fill="#ff4655" opacity="0.8" />
+              <circle cx="94" cy="93" r="3" fill="#ff4655" opacity="0.85" />
+              <circle cx="67" cy="88" r="2.5" fill="#ff4655" opacity="0.7" />
+              <circle cx="80" cy="65" r="2" fill="#ff4655" opacity="0.6" />
+              <circle cx="100" cy="78" r="2" fill="#ff4655" opacity="0.5" />
             </g>
           )}
           {/* "DEAD" text */}
@@ -213,15 +217,15 @@ function KillOverlay({ active, onDone }) {
    Files live in /public/audio/
 ───────────────────────────────────────── */
 function useAudio() {
-  const bgRef   = useRef(null);
+  const bgRef = useRef(null);
   const killRef = useRef(null);
   const [bgStarted, setBgStarted] = useState(false);
 
   // Initialise audio elements once
   useEffect(() => {
-    bgRef.current   = new Audio('/audio/bg_music.mp3');
+    bgRef.current = new Audio('/audio/bg_music.mp3');
     killRef.current = new Audio('/audio/kill_sound.mp3');
-    bgRef.current.loop   = true;
+    bgRef.current.loop = true;
     bgRef.current.volume = 0.25;   // background music is subtle
     killRef.current.volume = 0.6;
 
@@ -235,16 +239,16 @@ function useAudio() {
   useEffect(() => {
     const start = () => {
       if (!bgStarted && bgRef.current) {
-        bgRef.current.play().catch(() => {});
+        bgRef.current.play().catch(() => { });
         setBgStarted(true);
         window.removeEventListener('click', start);
         window.removeEventListener('keydown', start);
       }
     };
-    window.addEventListener('click',   start, { once: true });
+    window.addEventListener('click', start, { once: true });
     window.addEventListener('keydown', start, { once: true });
     return () => {
-      window.removeEventListener('click',   start);
+      window.removeEventListener('click', start);
       window.removeEventListener('keydown', start);
     };
   }, [bgStarted]);
@@ -252,7 +256,7 @@ function useAudio() {
   const playKillSound = useCallback(() => {
     if (killRef.current) {
       killRef.current.currentTime = 0;
-      killRef.current.play().catch(() => {});
+      killRef.current.play().catch(() => { });
     }
   }, []);
 
@@ -314,7 +318,7 @@ function useSkillSpotlight(ready) {
       const card = e.currentTarget;
       const rect = card.getBoundingClientRect();
       card.style.setProperty('--mx', `${e.clientX - rect.left - 80}px`);
-      card.style.setProperty('--my', `${e.clientY - rect.top  - 80}px`);
+      card.style.setProperty('--my', `${e.clientY - rect.top - 80}px`);
     };
     const cards = document.querySelectorAll('.skill-card');
     cards.forEach((c) => c.addEventListener('mousemove', handler));
@@ -326,9 +330,9 @@ function useSkillSpotlight(ready) {
    MAIN APP CONTENT
 ───────────────────────────────────────── */
 function AppContent() {
-  const [killActive,     setKillActive]     = useState(false);
-  const [killMode,       setKillMode]       = useState(false);
-  const [loadingDone,    setLoadingDone]    = useState(false);
+  const [killActive, setKillActive] = useState(false);
+  const [killMode, setKillMode] = useState(false);
+  const [loadingDone, setLoadingDone] = useState(false);
   const pendingNav = useRef(null);
 
   const { loading } = usePortfolio();

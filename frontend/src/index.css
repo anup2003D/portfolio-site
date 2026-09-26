@@ -1321,3 +1321,322 @@ ul { list-style: none; }
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* =====================================================
+   HORIZONTAL CAROUSEL — Among Us theme
+   All styles for HorizontalCarousel.jsx live here.
+   CHANGE POINT guide:
+     card bg colours  → .hc-card-0 … .hc-card-3
+     card size        → props in Projects.jsx (cardWidth/cardHeight)
+     text colours     → .hc-card-title / .hc-card-desc / .hc-card-cat
+     scroll feel      → interpolation factor in HorizontalCarousel.jsx
+===================================================== */
+
+/* ── Section & sticky container ── */
+.hc-section {
+  position: relative;
+  width: 100%;
+  overflow: clip;
+  background: var(--bg);
+}
+
+/*
+  Sticky inner keeps content pinned to the top of
+  the viewport while the parent section provides
+  the scroll distance.
+*/
+.hc-sticky {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+}
+
+/* ── Giant background text ──
+   CHANGE POINT: font size → clamp values below
+   CHANGE POINT: opacity → opacity value below
+   CHANGE POINT: colour → color value below */
+.hc-bg-title {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  z-index: 1;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: clamp(120px, 18vw, 260px);
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.06em;
+  color: rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+}
+
+/* ── Viewport & track ── */
+.hc-viewport {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hc-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  /*
+    CHANGE POINT — left/right padding before first and after last card.
+    Increase to start the first card further from the left edge.
+  */
+  padding-left: 10vw;
+  padding-right: 10vw;
+  will-change: transform;
+}
+
+/* ── Cards ──
+   CHANGE POINT: border radius → border-radius below (currently 0 — sharp edges)
+   CHANGE POINT: padding → padding below
+*/
+.hc-card {
+  position: relative;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  padding: 22px;
+  border: 0.5px solid rgba(255, 255, 255, 0.10);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  will-change: opacity;
+  /*
+    Smooth opacity on focus/unfocus.
+    CHANGE POINT: opacity fade speed → transition duration below
+  */
+  transition: opacity 0.4s ease, border-color 0.4s ease;
+}
+
+.hc-card:hover {
+  border-color: rgba(255, 70, 85, 0.45);
+}
+
+/*
+  Vertical stagger — same editorial offset as reference.
+  CHANGE POINT: stagger amounts → translateY values per nth-child
+*/
+.hc-card:nth-child(1) { transform: translateY(-28px); }
+.hc-card:nth-child(2) { transform: translateY(28px);  }
+.hc-card:nth-child(3) { transform: translateY(-12px); }
+.hc-card:nth-child(4) { transform: translateY(36px);  }
+.hc-card:nth-child(5) { transform: translateY(-20px); }
+
+/*
+  Per-card backgrounds — dark variants so each card
+  feels distinct without breaking the black/dark theme.
+  CHANGE POINT: card background colours → gradients below
+*/
+.hc-card-0 { background: linear-gradient(135deg, #131313, #0a0a0a 70%); }
+.hc-card-1 { background: linear-gradient(135deg, #0d0d10, #080808 70%); }
+.hc-card-2 { background: linear-gradient(135deg, #111115, #090909 70%); }
+.hc-card-3 { background: linear-gradient(135deg, #0f0f0f, #0a0a0a 70%); }
+
+/* Red top accent line on hover */
+.hc-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+  transform: scaleX(0);
+  transition: transform 0.5s ease;
+}
+.hc-card:hover::before { transform: scaleX(1); }
+
+/* ── Card top row (index + category) ── */
+.hc-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/*
+  CHANGE POINT: index number font/size → font-family and font-size below
+*/
+.hc-card-index {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: #cecec8;
+  letter-spacing: 1px;
+}
+
+/*
+  CHANGE POINT: category badge style → below
+*/
+.hc-card-cat {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--red);
+  border: 0.5px solid rgba(255, 70, 85, 0.35);
+  padding: 3px 8px;
+}
+
+/* ── Card body ── */
+.hc-card-body {
+  flex: 1;
+  padding: 20px 0 12px;
+}
+
+/*
+  CHANGE POINT: title size → font-size below
+*/
+.hc-card-title {
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.6vw, 20px);
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 0 0 10px;
+}
+
+/*
+  CHANGE POINT: description size/colour → below
+*/
+.hc-card-desc {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Card footer (tags + button) ── */
+.hc-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.hc-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+/*
+  CHANGE POINT: tag style → padding/border/colour below
+  Matches the "original" tag style from the tilt-card version.
+*/
+.hc-card-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #cecec8;
+  border: 1px solid rgba(244, 244, 239, 0.28);
+  padding: 5px 7px;
+  background: transparent;
+}
+
+/* ── Demo button ──
+   CHANGE POINT: button size → width/height below (currently 32px)
+   Same style as the previous proj-arrow-primary button.
+*/
+.hc-card-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: transform 0.35s ease, background 0.35s ease,
+              color 0.35s ease, border-color 0.35s ease;
+  cursor: pointer;
+}
+
+.hc-card:hover .hc-card-btn:not(.hc-card-btn--disabled) {
+  transform: rotate(45deg) scale(1.1);
+  background: var(--red);
+  color: var(--white);
+  border-color: var(--red);
+}
+
+.hc-card-btn--disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── Progress indicator ──
+   Sits at the bottom-centre of the viewport.
+   CHANGE POINT: line width → width of .hc-progress-track below
+*/
+.hc-progress {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hc-progress-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.hc-progress-track {
+  position: relative;
+  width: 90px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.hc-progress-track span {
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .hc-track { padding-left: 6vw; padding-right: 6vw; }
+  .hc-card  { padding: 18px; }
+}
+
+@media (max-width: 600px) {
+  .hc-section { height: 260vh !important; }
+  .hc-bg-title { font-size: 90px; letter-spacing: -0.07em; }
+  .hc-track { padding-left: 10vw; padding-right: 10vw; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hc-bg-title,
+  .hc-track,
+  .hc-card,
+  .hc-progress-track span {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -5,23 +5,23 @@ import { usePortfolio } from '../context/PortfolioContext';
    3D OBJECT COMPONENTS  (static, pop on hover)
 ───────────────────────────────────────── */
 function RingObject() {
-  return (
-    <div className="proj-obj proj-ring">
-      <span />
-    </div>
-  );
+    return (
+        <div className="proj-obj proj-ring">
+            <span />
+        </div>
+    );
 }
 function SphereObject() {
-  return <div className="proj-obj proj-sphere"><span /></div>;
+    return <div className="proj-obj proj-sphere"><span /></div>;
 }
 function PrismObject() {
-  return <div className="proj-obj proj-prism"><span /><span /></div>;
+    return <div className="proj-obj proj-prism"><span /><span /></div>;
 }
 function CubeObject() {
-  return <div className="proj-obj proj-cube"><span /><span /><span /></div>;
+    return <div className="proj-obj proj-cube"><span /><span /><span /></div>;
 }
 function DiamondObject() {
-  return <div className="proj-obj proj-diamond"><span /></div>;
+    return <div className="proj-obj proj-diamond"><span /></div>;
 }
 
 const SHAPES = [RingObject, SphereObject, PrismObject, CubeObject, DiamondObject];
@@ -30,162 +30,162 @@ const SHAPES = [RingObject, SphereObject, PrismObject, CubeObject, DiamondObject
    TILT CARD
 ───────────────────────────────────────── */
 function TiltCard({ project, index }) {
-  const cardRef = useRef(null);
-  const [hovered, setHovered] = useState(false);
+    const cardRef = useRef(null);
+    const [hovered, setHovered] = useState(false);
 
-  const ShapeEl = SHAPES[index % SHAPES.length];
+    const ShapeEl = SHAPES[index % SHAPES.length];
 
-  const handleMove = (e) => {
-    const card = cardRef.current;
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    card.style.setProperty('--rot-x', `${(0.5 - y) * 14}deg`);
-    card.style.setProperty('--rot-y', `${(x - 0.5) * 14}deg`);
-    card.style.setProperty('--spot-x', `${x * 100}%`);
-    card.style.setProperty('--spot-y', `${y * 100}%`);
-  };
+    const handleMove = (e) => {
+        const card = cardRef.current;
+        if (!card) return;
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        card.style.setProperty('--rot-x', `${(0.5 - y) * 14}deg`);
+        card.style.setProperty('--rot-y', `${(x - 0.5) * 14}deg`);
+        card.style.setProperty('--spot-x', `${x * 100}%`);
+        card.style.setProperty('--spot-y', `${y * 100}%`);
+    };
 
-  const reset = () => {
-    setHovered(false);
-    const card = cardRef.current;
-    if (!card) return;
-    card.style.setProperty('--rot-x', '0deg');
-    card.style.setProperty('--rot-y', '0deg');
-  };
+    const reset = () => {
+        setHovered(false);
+        const card = cardRef.current;
+        if (!card) return;
+        card.style.setProperty('--rot-x', '0deg');
+        card.style.setProperty('--rot-y', '0deg');
+    };
 
-  const hasDemo = project.demoLink && project.demoLink !== '#';
+    const hasDemo = project.demoLink && project.demoLink !== '#';
 
-  return (
-    <div
-      ref={cardRef}
-      className={`proj-card proj-card-${index}`}
-      onMouseMove={handleMove}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={reset}
-    >
-      {/* Noise texture overlay */}
-      <div className="proj-noise" />
+    return (
+        <div
+            ref={cardRef}
+            className={`proj-card proj-card-${index}`}
+            onMouseMove={handleMove}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={reset}
+        >
+            {/* Noise texture overlay */}
+            <div className="proj-noise" />
 
-      {/* Cursor spotlight */}
-      <div className="proj-shine" />
+            {/* Cursor spotlight */}
+            <div className="proj-shine" />
 
-      {/* Bottom ambient glow */}
-      <div className="proj-ambient" />
+            {/* Bottom ambient glow */}
+            <div className="proj-ambient" />
 
-      {/* 3D object */}
-      <div className={`proj-obj-wrap ${hovered ? 'obj-active' : ''}`}>
-        <ShapeEl />
-      </div>
+            {/* 3D object */}
+            <div className={`proj-obj-wrap ${hovered ? 'obj-active' : ''}`}>
+                <ShapeEl />
+            </div>
 
-      {/* Content layer */}
-      <div className="proj-content">
+            {/* Content layer */}
+            <div className="proj-content">
 
-        {/* Top row */}
-        <div className="proj-topline">
-          <span className="proj-num">{String(index + 1).padStart(2, '0')}</span>
-          <span className="proj-cat-pill">{project.category}</span>
+                {/* Top row */}
+                <div className="proj-topline">
+                    <span className="proj-num">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="proj-cat-pill">{project.category}</span>
+                </div>
+
+                {/* Spacer pushes copy to bottom */}
+                <div className="proj-spacer" />
+
+                {/* Copy */}
+                <div className="proj-copy">
+                    <div className="proj-title-row">
+                        <h3 className="proj-title">{project.title}</h3>
+                        {hasDemo ? (
+                            <a
+                                href={project.demoLink}
+                                className="proj-arrow-btn proj-arrow-primary"
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label={`${project.title} Demo`}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <i className="fas fa-arrow-up-right-from-square" />
+                            </a>
+                        ) : (
+                            <span className="proj-arrow-btn proj-arrow-disabled" title="Coming soon">
+                                <i className="fas fa-clock" />
+                            </span>
+                        )}
+                    </div>
+                    <p className="proj-desc">{project.description}</p>
+                </div>
+
+                {/* Tags */}
+                <div className="proj-tags">
+                    {project.techStack?.slice(0, 4).map((tag) => (
+                        <span key={tag} className="proj-tag">{tag}</span>
+                    ))}
+                </div>
+            </div>
         </div>
-
-        {/* Spacer pushes copy to bottom */}
-        <div className="proj-spacer" />
-
-        {/* Copy */}
-        <div className="proj-copy">
-          <div className="proj-title-row">
-            <h3 className="proj-title">{project.title}</h3>
-            {hasDemo ? (
-              <a
-                href={project.demoLink}
-                className="proj-arrow-btn proj-arrow-primary"
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`${project.title} Demo`}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <i className="fas fa-arrow-up-right-from-square" />
-              </a>
-            ) : (
-              <span className="proj-arrow-btn proj-arrow-disabled" title="Coming soon">
-                <i className="fas fa-clock" />
-              </span>
-            )}
-          </div>
-          <p className="proj-desc">{project.description}</p>
-        </div>
-
-        {/* Tags */}
-        <div className="proj-tags">
-          {project.techStack?.slice(0, 4).map((tag) => (
-            <span key={tag} className="proj-tag">{tag}</span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 /* ─────────────────────────────────────────
    PROJECTS SECTION
 ───────────────────────────────────────── */
 export default function Projects() {
-  const { projects } = usePortfolio();
-  const [activeFilter, setActiveFilter] = useState('All');
+    const { projects } = usePortfolio();
+    const [activeFilter, setActiveFilter] = useState('All');
 
-  const categories = useMemo(() => {
-    const cats = projects.map((p) => p.category).filter(Boolean);
-    return ['All', ...new Set(cats)];
-  }, [projects]);
+    const categories = useMemo(() => {
+        const cats = projects.map((p) => p.category).filter(Boolean);
+        return ['All', ...new Set(cats)];
+    }, [projects]);
 
-  const filtered = useMemo(() => {
-    if (activeFilter === 'All') return projects;
-    return projects.filter((p) => p.category === activeFilter);
-  }, [projects, activeFilter]);
+    const filtered = useMemo(() => {
+        if (activeFilter === 'All') return projects;
+        return projects.filter((p) => p.category === activeFilter);
+    }, [projects, activeFilter]);
 
-  if (!projects.length) return null;
+    if (!projects.length) return null;
 
-  return (
-    <section className="section" id="projects" aria-labelledby="projects-heading">
-      <div className="container">
+    return (
+        <section className="section" id="projects" aria-labelledby="projects-heading">
+            <div className="container">
 
-        <div className="section-eyebrow reveal">
-          <div className="section-eyebrow-line" />
-          <span className="section-eyebrow-text">05 / Completed Tasks</span>
-        </div>
+                <div className="section-eyebrow reveal">
+                    <div className="section-eyebrow-line" />
+                    <span className="section-eyebrow-text">05 / Completed Tasks</span>
+                </div>
 
-        <h2
-          className="section-title reveal"
-          id="projects-heading"
-          style={{ transitionDelay: '200ms' }}
-        >
-          Featured <span className="accent">Projects</span>
-        </h2>
+                <h2
+                    className="section-title reveal"
+                    id="projects-heading"
+                    style={{ transitionDelay: '200ms' }}
+                >
+                    Featured <span className="accent">Projects</span>
+                </h2>
 
-        {/* Filter bar */}
-        <div className="filter-bar reveal" style={{ transitionDelay: '140ms' }}>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              className={`filter-btn ${activeFilter === cat ? 'active' : ''}`}
-              onClick={() => setActiveFilter(cat)}
-              aria-pressed={activeFilter === cat}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+                {/* Filter bar */}
+                <div className="filter-bar reveal" style={{ transitionDelay: '140ms' }}>
+                    {categories.map((cat) => (
+                        <button
+                            key={cat}
+                            className={`filter-btn ${activeFilter === cat ? 'active' : ''}`}
+                            onClick={() => setActiveFilter(cat)}
+                            aria-pressed={activeFilter === cat}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
 
-        {/* Tilt card grid */}
-        <div className="proj-grid">
-          {filtered.map((project, i) => (
-            <TiltCard key={project._id || project.title} project={project} index={i} />
-          ))}
-        </div>
+                {/* Tilt card grid */}
+                <div className="proj-grid">
+                    {filtered.map((project, i) => (
+                        <TiltCard key={project._id || project.title} project={project} index={i} />
+                    ))}
+                </div>
 
-      </div>
+            </div>
 
-      <style>{`
+            <style>{`
 
         /* ═══════════════════════════════════════
            GRID
@@ -563,6 +563,6 @@ export default function Projects() {
           cursor: not-allowed;
         }
       `}</style>
-    </section>
-  );
+        </section>
+    );
 }
