@@ -22,7 +22,7 @@ export default function Footer() {
 
         {/* Download CV — kept from B&W version as requested */}
         <a
-          href="/Anup_Dutta_New_Resume.pdf"
+          href={`${import.meta.env.BASE_URL}Anup_Dutta_New_Resume.pdf`}
           download
           target="_blank"
           rel="noreferrer"

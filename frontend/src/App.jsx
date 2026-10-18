@@ -5,7 +5,7 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Skills from './components/Skills';
 import Experience from './components/Experience';
-import Projects from './components/Projects2';
+import Projects from './components/Projects';
 //import HorizontalCarousel from "./components/HorizontalCarousel";
 import Contact from './components/Contact';
 import Footer from './components/Footer';
@@ -212,21 +212,22 @@ function KillOverlay({ active, onDone }) {
 
 /* ─────────────────────────────────────────
    AUDIO MANAGER
-   bg_music loops the whole session.
+   Among_us_bgm.mp3 loops the whole session,
+   auto-starting right after the loading screen.
    kill_sound plays on every kill animation.
    Files live in /public/audio/
 ───────────────────────────────────────── */
-function useAudio() {
-  const bgRef = useRef(null);
-  const killRef = useRef(null);
-  const [bgStarted, setBgStarted] = useState(false);
+function useAudio(loadingDone) {
+  const bgRef    = useRef(null);
+  const killRef  = useRef(null);
+  const started  = useRef(false);
 
   // Initialise audio elements once
   useEffect(() => {
-    bgRef.current = new Audio('/audio/bg_music.mp3');
+    bgRef.current   = new Audio('/audio/Among_us_bgm.mp3');
     killRef.current = new Audio('/audio/kill_sound.mp3');
-    bgRef.current.loop = true;
-    bgRef.current.volume = 0.25;   // background music is subtle
+    bgRef.current.loop   = true;
+    bgRef.current.volume = 0.25;   // subtle background level
     killRef.current.volume = 0.6;
 
     return () => {
@@ -235,28 +236,30 @@ function useAudio() {
     };
   }, []);
 
-  // Start bg music on first user interaction (browser autoplay policy)
+  // Auto-start BGM the moment the loading screen finishes.
+  // The loading_sound that played during the loading screen
+  // already unlocked the browser's autoplay gate, so we can
+  // play without waiting for another user click.
   useEffect(() => {
-    const start = () => {
-      if (!bgStarted && bgRef.current) {
-        bgRef.current.play().catch(() => { });
-        setBgStarted(true);
-        window.removeEventListener('click', start);
-        window.removeEventListener('keydown', start);
-      }
-    };
-    window.addEventListener('click', start, { once: true });
-    window.addEventListener('keydown', start, { once: true });
-    return () => {
-      window.removeEventListener('click', start);
-      window.removeEventListener('keydown', start);
-    };
-  }, [bgStarted]);
+    if (!loadingDone || started.current || !bgRef.current) return;
+    started.current = true;
+    bgRef.current.play().catch(() => {
+      // Autoplay still blocked (e.g. fresh tab with no prior interaction).
+      // Fall back to first click/key as a silent safety net.
+      const unlock = () => {
+        bgRef.current?.play().catch(() => {});
+        window.removeEventListener('click',   unlock);
+        window.removeEventListener('keydown', unlock);
+      };
+      window.addEventListener('click',   unlock, { once: true });
+      window.addEventListener('keydown', unlock, { once: true });
+    });
+  }, [loadingDone]);
 
   const playKillSound = useCallback(() => {
     if (killRef.current) {
       killRef.current.currentTime = 0;
-      killRef.current.play().catch(() => { });
+      killRef.current.play().catch(() => {});
     }
   }, []);
 
@@ -342,7 +345,7 @@ function AppContent() {
   useProjectSlide(ready);
   useSkillSpotlight(ready);
 
-  const { playKillSound } = useAudio();
+  const { playKillSound } = useAudio(loadingDone);
 
   /* Kill trigger */
   const triggerKill = useCallback((callback) => {
@@ -376,10 +379,10 @@ function AppContent() {
 
       // Filter buttons in the projects section (non-anchor buttons)
       const filterBtn = e.target.closest('.filter-btn');
-      if (filterBtn) {
-        triggerKill(() => filterBtn.click()); // re-fire after animation
-        return;
-      }
+      // if (filterBtn) {
+      //   triggerKill(() => filterBtn.click()); // re-fire after animation
+      //   return;
+      // }
     };
 
     document.addEventListener('click', onClick);

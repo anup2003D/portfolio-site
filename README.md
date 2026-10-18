@@ -1,92 +1,166 @@
-# Anup Dutta - Portfolio Website
+# Anup Dutta — Portfolio Site
 
-A modern, minimalistic portfolio website showcasing skills as a Data Analyst and Developer.
+A full-stack, Among-Us-themed portfolio built with **React + Vite** (frontend) and **FastAPI + MongoDB** (backend).
 
-🌐 **Live Site**: [https://anup2003D.github.io/portfolio-site/](https://anup2003D.github.io/portfolio-site/)
+🌐 **Live**: [https://anup2003D.github.io/portfolio-site/](https://anup2003D.github.io/portfolio-site/)
 
-## ✨ Features
+---
 
-- **🌙 Dark/Light Theme Toggle**: Switch between dark and light modes with a single click
-- **📱 Responsive Design**: Optimized for all device sizes from mobile to desktop
-- **✨ Beautiful Animations**: Smooth scroll animations, typing effects, and hover interactions
-- **🎨 Minimalistic Design**: Clean, professional aesthetic with beautiful typography
-- **⚡ Interactive Elements**: Animated skill cards, portfolio project showcases, and contact form
-- **🖼️ Custom Background**: Subtle anime-themed background with darkening overlay
-
-## 🛠️ Technologies Used
-
-- **HTML5**: Semantic markup and modern structure
-- **CSS3**: Custom properties, Grid, Flexbox, and advanced animations
-- **JavaScript**: Interactive features, theme switching, and scroll animations
-- **Font Awesome**: Professional iconography
-- **Google Fonts**: Inter font family for modern typography
-
-## 📁 Repository Structure
+## 🏗️ Project Structure
 
 ```
 portfolio-site/
-├── README.md          # Project documentation (this file)
-└── docs/              # GitHub Pages deployment folder
-    ├── index.html     # Main website file
-    ├── portfolio.css  # Complete styling with themes
-    ├── .gitignore     # Git ignore for docs folder
-    ├── Anime.jpg      # Background image
-    ├── Profile CV.jpg # Profile photo
-    └── Goldman Sachs Application.png # CV download
+├── frontend/                  # Vite + React app
+│   ├── public/
+│   │   ├── audio/             # Among_us_bgm.mp3, kill_sound.mp3, loading_sound.mp3
+│   │   └── Anup_Dutta_New_Resume.pdf
+│   ├── src/
+│   │   ├── api/client.js      # Fetch wrapper (uses VITE_API_BASE_URL)
+│   │   ├── components/        # Hero, Navigation, Projects, Contact, etc.
+│   │   ├── context/
+│   │   │   └── PortfolioContext.jsx  # Global data + fallback data
+│   │   ├── App.jsx
+│   │   └── index.css          # Design system (Orbitron / Space Grotesk)
+│   ├── vite.config.js         # base: '/portfolio-site/' for GitHub Pages
+│   └── .env.local             # VITE_API_BASE_URL (local override)
+│
+├── backend/                   # FastAPI + Motor (async MongoDB)
+│   ├── main.py                # All routes
+│   ├── models.py              # Pydantic models
+│   └── config.py              # MongoDB connection (reads MONGO_URL)
+│
+└── README.md
 ```
 
-## 🚀 GitHub Pages Deployment
+---
 
-This website is deployed using **GitHub Pages** from the `/docs` folder:
-- **Source**: Deploy from `/docs` folder on `main` branch
-- **Live URL**: https://anup2003D.github.io/portfolio-site/
-- **Auto-deployment**: Updates automatically when changes are pushed to main branch
+## 🚀 Local Development
 
-## 📄 Website Sections
+### Prerequisites
 
-1. **🏠 Hero Section**: Introduction with animated typing effect and profile image
-2. **👨‍💻 About Section**: Professional summary with animated statistics
-3. **🛠️ Skills Section**: Four key skill areas with technology tags
-4. **💼 Portfolio Section**: Featured project showcases with overlay effects
-5. **📞 Contact Section**: Contact information and interactive form
+- Node.js 18+
+- Python 3.11+
+- MongoDB running locally **or** a MongoDB Atlas connection string
 
-## 💻 Local Development
+---
 
-To run the website locally:
+### Frontend
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/anup2003D/portfolio-site.git
-   cd portfolio-site
-   ```
+```bash
+cd frontend
+npm install
+npm run dev          # http://localhost:3000
+```
 
-2. Navigate to the docs folder:
-   ```bash
-   cd docs
-   ```
+The Vite dev server proxies `/api/*` requests to `http://localhost:8000` automatically.
 
-3. Open in browser:
-   ```bash
-   # Option 1: Open directly
-   open index.html
-   
-   # Option 2: Use a local server (recommended)
-   python -m http.server 8000
-   # Then visit http://localhost:8000
-   ```
+If the backend is offline the site still works — it loads **fallback data** (defined in `PortfolioContext.jsx`) and shows a yellow dev-only toast.
 
-## 📞 Contact Information
+#### Environment variables (frontend)
 
-- **📧 Email**: anupdutta03work@gmail.com
-- **📱 Phone**: +91 8017330067
-- **📍 Location**: India
-- **💼 LinkedIn**: [Connect with me](https://linkedin.com/)
-- **🐱 GitHub**: [View my repositories](https://github.com/)
+Create `frontend/.env.local` (git-ignored):
+
+```env
+# Override the API base URL in dev if your backend runs on a different port/host
+VITE_API_BASE_URL=http://localhost:8000/api
+```
+
+Leave this file absent in production; the Vite proxy handles it automatically.
+
+---
+
+### Backend
+
+```bash
+# Activate the venv (Windows)
+venv\Scripts\activate
+
+# Install dependencies (first time)
+pip install -r backend/requirements.txt
+
+# Set env vars (Windows PowerShell)
+$env:MONGO_URL    = "mongodb://localhost:27017"
+$env:ALLOWED_ORIGINS = "http://localhost:3000,http://localhost:5173"
+
+# Run
+cd backend
+uvicorn main:app --reload --port 8000
+```
+
+API docs available at `http://localhost:8000/docs`.
+
+---
+
+## 🌍 GitHub Pages Deployment
+
+The frontend is deployed as a static site via the `gh-pages` action.
+
+```bash
+cd frontend
+npm run build     # outputs to frontend/dist/
+```
+
+**Important:** `vite.config.js` has `base: '/portfolio-site/'` set — this ensures asset paths work correctly under `https://anup2003D.github.io/portfolio-site/`.
+
+> If you rename the GitHub repo, update `base` in `vite.config.js` to match.
+
+---
+
+## 🔧 Environment Variables Reference
+
+### Backend (`backend/.env` or shell)
+
+| Variable | Default | Description |
+|---|---|---|
+| `MONGO_URL` | `mongodb://localhost:27017` | MongoDB connection string |
+| `ALLOWED_ORIGINS` | `http://localhost:3000,http://localhost:5173` | CORS allow-list (comma-separated). **Must include your GitHub Pages URL in production.** |
+
+Example for production:
+```bash
+ALLOWED_ORIGINS=https://anup2003D.github.io,https://yourdomain.com
+```
+
+### Frontend (`frontend/.env.local`)
+
+| Variable | Default | Description |
+|---|---|---|
+| `VITE_API_BASE_URL` | `/api` (proxied) | Full URL to the backend API in production |
+
+---
+
+## 🎨 Design System
+
+| Token | Value |
+|---|---|
+| Primary font | Orbitron (headings) |
+| Body font | Space Grotesk |
+| Accent | `#ff4655` (Emergency Red) |
+| Background | `#000000` (Void Black) |
+| Custom cursor | Among Us crewmate SVG |
+
+All CSS variables live in `frontend/src/index.css` under `:root`.
+
+---
+
+## 📦 Key Features
+
+- **Among Us theme** — animated crewmate cursor, kill overlay, starfield, BGM
+- **Fallback data** — site works without a backend; uses static data defined in `PortfolioContext.jsx`
+- **Mobile navigation** — full-screen slide-in drawer at ≤ 900px
+- **Contact form** — tries the API, falls back to a `mailto:` pre-filled link if backend is offline
+- **Scroll reveal** — Intersection Observer animations for all sections
+
+---
+
+## 📞 Contact
+
+- **Email**: anupdutta03work@gmail.com
+- **LinkedIn**: [anup-dutta-9198171b6](https://www.linkedin.com/in/anup-dutta-9198171b6/)
+- **GitHub**: [anup2003D](https://github.com/anup2003D)
 
 ---
 
 <div align="center">
-  <strong>Built with ❤️ by Anup Dutta</strong>
-  <br>
-  <em>Data Analyst & Developer</em>
+  <strong>Built with ❤️ by Anup Dutta</strong><br>
+  <em>AI Developer · Data Engineer · CS Grad, Kolkata</em>
 </div>

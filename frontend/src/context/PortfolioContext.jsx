@@ -11,7 +11,7 @@ const FALLBACK_PORTFOLIO = {
   email: "anupdutta03work@gmail.com",
   phone: "+91 8017330067",
   location: "India",
-  resumeLink: "/Anup_Dutta_New_Resume.pdf",
+  resumeLink: `${import.meta.env.BASE_URL}Anup_Dutta_New_Resume.pdf`,
   social: {
     github: "https://github.com/anup2003D",
     linkedin: "https://www.linkedin.com/in/anup-dutta-9198171b6/",
@@ -177,6 +177,7 @@ export function PortfolioProvider({ children }) {
   const [skillCategories, setSkillCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [usingFallback, setUsingFallback] = useState(false);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -199,6 +200,7 @@ export function PortfolioProvider({ children }) {
       setProjects(FALLBACK_PROJECTS);
       setExperiences(FALLBACK_EXPERIENCES);
       setSkillCategories(FALLBACK_SKILLS);
+      setUsingFallback(true);
     } finally {
       setLoading(false);
     }
@@ -210,6 +212,8 @@ export function PortfolioProvider({ children }) {
 
   const refetch = fetchAll;
 
+  const isDev = import.meta.env.DEV;
+
   return (
     <PortfolioContext.Provider
       value={{
@@ -220,9 +224,36 @@ export function PortfolioProvider({ children }) {
         loading,
         error,
         refetch,
+        usingFallback,
       }}
     >
       {children}
+      {/* Dev-only notice — invisible in production builds */}
+      {isDev && usingFallback && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: 'fixed',
+            bottom: 16,
+            right: 16,
+            zIndex: 99999,
+            background: 'rgba(250, 200, 0, 0.92)',
+            color: '#1a1a00',
+            padding: '10px 16px',
+            borderRadius: 6,
+            fontSize: 12,
+            fontFamily: 'monospace',
+            maxWidth: 280,
+            lineHeight: 1.5,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+            pointerEvents: 'none',
+          }}
+        >
+          ⚠️ <strong>DEV:</strong> API unreachable — using fallback data.
+          Check backend/ALLOWED_ORIGINS.
+        </div>
+      )}
     </PortfolioContext.Provider>
   );
 }

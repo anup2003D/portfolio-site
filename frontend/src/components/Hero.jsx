@@ -37,15 +37,15 @@ function CrewmateSVG({ size = 200 }) {
 export default function Hero() {
   const { portfolio, loading } = usePortfolio();
 
-  const [displayName,  setDisplayName]  = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [nameComplete, setNameComplete] = useState(false);
-  const [roleIndex,    setRoleIndex]    = useState(0);
-  const [displayRole,  setDisplayRole]  = useState('');
-  const [roleTyping,   setRoleTyping]   = useState(true);
+  const [roleIndex, setRoleIndex] = useState(0);
+  const [displayRole, setDisplayRole] = useState('');
+  const [roleTyping, setRoleTyping] = useState(true);
 
   const crewmateRef = useRef(null);
-  const heroRef     = useRef(null);
-  const scrollRef   = useRef(0);
+  const heroRef = useRef(null);
+  const scrollRef = useRef(0);
 
   /* ── Name typewriter ── */
   useEffect(() => {
@@ -110,13 +110,13 @@ export default function Hero() {
 
     const onMove = (e) => {
       const rect = hero.getBoundingClientRect();
-      const cx   = rect.left + rect.width  / 2;
-      const cy   = rect.top  + rect.height / 2;
-      const dx   = (e.clientX - cx) / (rect.width  / 2);
-      const dy   = (e.clientY - cy) / (rect.height / 2);
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) / (rect.width / 2);
+      const dy = (e.clientY - cy) / (rect.height / 2);
 
       const tiltX = dy * -8;
-      const tiltY = dx *  8;
+      const tiltY = dx * 8;
       const moveX = dx * 14;
       const moveY = dy * 8;
 
@@ -147,7 +147,7 @@ export default function Hero() {
     const onScroll = () => { scrollRef.current = window.scrollY; };
 
     const animate = () => {
-      const sy   = scrollRef.current;
+      const sy = scrollRef.current;
       const hero = heroRef.current;
       if (hero) {
         const textEl = hero.querySelector('.hero-text');
@@ -166,13 +166,13 @@ export default function Hero() {
 
   if (loading) return null;
 
-  const name    = portfolio?.name    || 'Anup Dutta';
+  const name = portfolio?.name || 'Anup Dutta';
   const tagline = portfolio?.tagline || 'Turning data into products that matter.';
-  const social  = portfolio?.social  || {};
+  const social = portfolio?.social || {};
 
-  const parts    = name.split(' ');
-  const first    = parts[0]  || '';
-  const last     = parts.slice(1).join(' ') || '';
+  const parts = name.split(' ');
+  const first = parts[0] || '';
+  const last = parts.slice(1).join(' ') || '';
   const firstDone = displayName.length >= first.length;
   const shownLast = firstDone ? displayName.slice(first.length + 1) : '';
 
@@ -239,7 +239,7 @@ export default function Hero() {
               Get In Touch
             </a>
             <a
-              href="/Anup_Dutta_New_Resume.pdf"
+              href={`${import.meta.env.BASE_URL}Anup_Dutta_New_Resume.pdf`}
               className="btn btn-outline"
               target="_blank"
               rel="noreferrer"

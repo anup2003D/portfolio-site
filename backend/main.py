@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from typing import Optional
 
@@ -18,13 +19,27 @@ from models import (
 
 app = FastAPI(title="Portfolio API")
 
+# CORS — explicit origins are required when allow_credentials=True.
+# Set ALLOWED_ORIGINS env var (comma-separated) in production.
+# Example: ALLOWED_ORIGINS=https://anup2003D.github.io,http://localhost:3000
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
+ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def parse_object_id(id_str: str) -> ObjectId:
+    """Parse an ObjectId string, raising HTTP 400 on malformed input."""
+    try:
+        return ObjectId(id_str)
+    except Exception:
+        raise HTTPException(status_code=400, detail=f"Invalid ID: '{id_str}'")
 
 
 def serialize_doc(doc) -> dict:
@@ -69,7 +84,7 @@ async def get_projects(category: Optional[str] = None):
 @app.get("/api/projects/{project_id}")
 async def get_project(project_id: str):
     col = get_collection("projects")
-    doc = await col.find_one({"_id": ObjectId(project_id)})
+    doc = await col.find_one({"_id": parse_object_id(project_id)})
     if not doc:
         raise HTTPException(404, "Project not found")
     return serialize_doc(doc)
@@ -86,7 +101,7 @@ async def create_project(data: Project):
 async def update_project(project_id: str, data: Project):
     col = get_collection("projects")
     result = await col.update_one(
-        {"_id": ObjectId(project_id)}, {"$set": data.model_dump()}
+        {"_id": parse_object_id(project_id)}, {"$set": data.model_dump()}
     )
     if result.matched_count == 0:
         raise HTTPException(404, "Project not found")
@@ -96,7 +111,7 @@ async def update_project(project_id: str, data: Project):
 @app.delete("/api/projects/{project_id}")
 async def delete_project(project_id: str):
     col = get_collection("projects")
-    result = await col.delete_one({"_id": ObjectId(project_id)})
+    result = await col.delete_one({"_id": parse_object_id(project_id)})
     if result.deleted_count == 0:
         raise HTTPException(404, "Project not found")
     return {"message": "Project deleted"}
@@ -123,7 +138,7 @@ async def create_experience(data: Experience):
 async def update_experience(experience_id: str, data: Experience):
     col = get_collection("experiences")
     result = await col.update_one(
-        {"_id": ObjectId(experience_id)}, {"$set": data.model_dump()}
+        {"_id": parse_object_id(experience_id)}, {"$set": data.model_dump()}
     )
     if result.matched_count == 0:
         raise HTTPException(404, "Experience not found")
@@ -133,7 +148,7 @@ async def update_experience(experience_id: str, data: Experience):
 @app.delete("/api/experiences/{experience_id}")
 async def delete_experience(experience_id: str):
     col = get_collection("experiences")
-    result = await col.delete_one({"_id": ObjectId(experience_id)})
+    result = await col.delete_one({"_id": parse_object_id(experience_id)})
     if result.deleted_count == 0:
         raise HTTPException(404, "Experience not found")
     return {"message": "Experience deleted"}
@@ -181,7 +196,7 @@ async def get_messages():
 async def mark_read(message_id: str):
     col = get_collection("contact_messages")
     result = await col.update_one(
-        {"_id": ObjectId(message_id)},
+        {"_id": parse_object_id(message_id)},
         {"$set": {"status": "read", "readAt": datetime.utcnow()}},
     )
     if result.matched_count == 0:
