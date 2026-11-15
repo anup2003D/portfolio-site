@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 
 const ICON_MAP = {
@@ -34,6 +34,74 @@ function useBarAnimation() {
   }, []);
 }
 
+function SkillCard({ cat }) {
+  const cardRef = useRef(null);
+
+  const handleMove = (e) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    const rotX = (0.5 - y) * 16;
+    const rotY = (x - 0.5) * 16;
+    card.style.setProperty('--rot-x', `${rotX.toFixed(2)}deg`);
+    card.style.setProperty('--rot-y', `${rotY.toFixed(2)}deg`);
+    card.style.setProperty('--mx', `${e.clientX - rect.left - 80}px`);
+    card.style.setProperty('--my', `${e.clientY - rect.top - 80}px`);
+  };
+
+  const handleLeave = () => {
+    const card = cardRef.current;
+    if (!card) return;
+    card.style.setProperty('--rot-x', '0deg');
+    card.style.setProperty('--rot-y', '0deg');
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      className="skill-card reveal"
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+    >
+      <span className="skill-card-icon" aria-hidden="true">
+        {ICON_MAP[cat.category] || '🔧'}
+      </span>
+
+      <h3 className="skill-card-title">{cat.categoryLabel}</h3>
+
+      <div className="skill-tags">
+        {cat.skills.map((s) => (
+          <span key={s.name} className="skill-tag">{s.name}</span>
+        ))}
+      </div>
+
+      {/* Skill bars — start at 0%, animate to target on scroll */}
+      <div>
+        {cat.skills.map((s) => (
+          <div key={s.name} className="skill-bar-row">
+            <div className="skill-bar-meta">
+              <span className="skill-bar-name">{s.name}</span>
+              <span className="skill-bar-pct">{s.level}%</span>
+            </div>
+            <div className="skill-bar-track">
+              <div
+                className="skill-bar-fill"
+                data-target={`${s.level}%`}
+                style={{
+                  width: '0%',
+                  transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Skills() {
   const { skillCategories } = usePortfolio();
   useBarAnimation();
@@ -53,47 +121,9 @@ export default function Skills() {
           Skills &amp; <span className="accent">Expertise</span>
         </h2>
 
-        <div className="skills-grid stagger-children">
-          {skillCategories.map((cat, i) => (
-            <div
-              key={cat.category}
-              className="skill-card reveal"
-              style={{ transitionDelay: `${i * 80}ms` }}
-            >
-              <span className="skill-card-icon" aria-hidden="true">
-                {ICON_MAP[cat.category] || '🔧'}
-              </span>
-
-              <h3 className="skill-card-title">{cat.categoryLabel}</h3>
-
-              <div className="skill-tags">
-                {cat.skills.map((s) => (
-                  <span key={s.name} className="skill-tag">{s.name}</span>
-                ))}
-              </div>
-
-              {/* Skill bars — start at 0%, animate to target on scroll */}
-              <div>
-                {cat.skills.map((s) => (
-                  <div key={s.name} className="skill-bar-row">
-                    <div className="skill-bar-meta">
-                      <span className="skill-bar-name">{s.name}</span>
-                      <span className="skill-bar-pct">{s.level}%</span>
-                    </div>
-                    <div className="skill-bar-track">
-                      <div
-                        className="skill-bar-fill"
-                        data-target={`${s.level}%`}
-                        style={{
-                          width: '0%',
-                          transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)',
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+        <div className="skills-grid">
+          {skillCategories.map((cat) => (
+            <SkillCard key={cat.category} cat={cat} />
           ))}
         </div>
 

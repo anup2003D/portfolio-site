@@ -257,21 +257,6 @@ function useProjectSlide(ready) {
   }, [ready]);
 }
 
-function useSkillSpotlight(ready) {
-  useEffect(() => {
-    if (!ready) return;
-    const handler = (e) => {
-      const card = e.currentTarget;
-      const rect = card.getBoundingClientRect();
-      card.style.setProperty('--mx', `${e.clientX - rect.left - 80}px`);
-      card.style.setProperty('--my', `${e.clientY - rect.top - 80}px`);
-    };
-    const cards = document.querySelectorAll('.skill-card');
-    cards.forEach((c) => c.addEventListener('mousemove', handler));
-    return () => cards.forEach((c) => c.removeEventListener('mousemove', handler));
-  }, [ready]);
-}
-
 /* ─────────────────────────────────────────
    MAIN APP CONTENT
 ───────────────────────────────────────── */
@@ -283,7 +268,6 @@ function AppContent() {
 
   useScrollReveal(ready);
   useProjectSlide(ready);
-  useSkillSpotlight(ready);
 
   /* Audio hook still used for loading screen only */
   const { playKillSound } = useAudio(loadingDone);

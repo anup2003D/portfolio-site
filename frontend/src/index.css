@@ -883,18 +883,32 @@ ul {
 /* ── Skills ── */
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1px;
-  background: var(--hull-border);
-  border: 0.5px solid var(--hull-border);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  background: transparent;
+  border: none;
+  perspective: 1000px;
 }
 
 .skill-card {
-  background: var(--bg);
-  padding: 28px 24px;
+  background: rgba(12, 12, 16, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 30px 24px;
   position: relative;
   overflow: hidden;
-  transition: background var(--base) ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transform-style: preserve-3d;
+  transform: perspective(900px) rotateX(var(--rot-x, 0deg)) rotateY(var(--rot-y, 0deg));
+  transition:
+    opacity var(--slow) var(--ease),
+    transform 0.16s ease-out,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    background 0.3s ease;
+  transition-delay: 0s !important;
+  will-change: transform;
 }
 
 /* Spotlight sweep on hover */
@@ -913,8 +927,16 @@ ul {
   pointer-events: none;
 }
 
-.skill-card:hover {
-  background: var(--hull);
+.skill-card:hover,
+.skill-card.reveal.visible:hover {
+  transform: perspective(900px) translateY(-8px) scale(1.035) rotateX(var(--rot-x, 0deg)) rotateY(var(--rot-y, 0deg));
+  border-color: rgba(255, 70, 85, 0.35);
+  background: rgba(18, 16, 22, 0.96);
+  box-shadow:
+    0 0 0 1px rgba(255, 70, 85, 0.15),
+    0 24px 50px -15px rgba(0, 0, 0, 0.9),
+    0 0 45px -10px rgba(255, 70, 85, 0.18);
+  z-index: 2;
 }
 
 .skill-card:hover::before {
@@ -939,9 +961,15 @@ ul {
 }
 
 .skill-card-icon {
-  font-size: 22px;
+  font-size: 24px;
   margin-bottom: 14px;
-  display: block;
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center;
+}
+
+.skill-card:hover .skill-card-icon {
+  transform: rotate(14deg) scale(1.2);
 }
 
 .skill-card-title {
@@ -968,6 +996,7 @@ ul {
   border: 0.5px solid var(--hull-border);
   padding: 3px 9px;
   letter-spacing: 0.5px;
+  border-radius: 6px;
   transition: border-color var(--fast) ease, color var(--fast) ease;
 }
 
