@@ -904,6 +904,7 @@ ul {
   transition:
     opacity var(--slow) var(--ease),
     transform 0.16s ease-out,
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.35s ease,
     box-shadow 0.35s ease,
     background 0.3s ease;
@@ -929,13 +930,14 @@ ul {
 
 .skill-card:hover,
 .skill-card.reveal.visible:hover {
-  transform: perspective(900px) translateY(-8px) scale(1.035) rotateX(var(--rot-x, 0deg)) rotateY(var(--rot-y, 0deg));
-  border-color: rgba(255, 70, 85, 0.35);
-  background: rgba(18, 16, 22, 0.96);
+  transform: translateY(-8px) scale(1.03);
+  border-color: rgba(255, 70, 85, 0.42);
+  background: rgba(14, 14, 18, 0.94);
   box-shadow:
-    0 0 0 1px rgba(255, 70, 85, 0.15),
-    0 24px 50px -15px rgba(0, 0, 0, 0.9),
-    0 0 45px -10px rgba(255, 70, 85, 0.18);
+    0 0 0 1px rgba(255, 70, 85, 0.28),
+    0 0 35px 8px rgba(255, 70, 85, 0.24),
+    0 0 75px 20px rgba(255, 70, 85, 0.12),
+    0 22px 50px -15px rgba(0, 0, 0, 0.95);
   z-index: 2;
 }
 

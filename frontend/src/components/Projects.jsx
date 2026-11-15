@@ -1,256 +1,198 @@
-import { useRef, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 
-/* ─────────────────────────────────────────
-   3D OBJECT COMPONENTS  (static, pop on hover)
-───────────────────────────────────────── */
-function RingObject() {
-    return (
-        <div className="proj-obj proj-ring">
-            <span />
+function ProjectCard({ project, index }) {
+  const targetLink =
+    project.demoLink && project.demoLink !== '#'
+      ? project.demoLink
+      : project.githubLink && project.githubLink !== '#'
+      ? project.githubLink
+      : null;
+
+  const isGithub = targetLink && targetLink.includes('github.com');
+  const hasLink = Boolean(targetLink);
+
+  return (
+    <div className="proj-card">
+      {/* Noise texture overlay */}
+      <div className="proj-noise" aria-hidden="true" />
+
+      {/* Top Header: Domain Pill & Index */}
+      <div className="proj-header">
+        <div className="proj-cat-badge">
+          <span className="proj-dot" aria-hidden="true" />
+          <span className="proj-cat-text">{project.category || 'Project'}</span>
         </div>
-    );
-}
-function SphereObject() {
-    return <div className="proj-obj proj-sphere"><span /></div>;
-}
-function PrismObject() {
-    return <div className="proj-obj proj-prism"><span /><span /></div>;
-}
-function CubeObject() {
-    return <div className="proj-obj proj-cube"><span /><span /><span /></div>;
-}
-function DiamondObject() {
-    return <div className="proj-obj proj-diamond"><span /></div>;
-}
+        <span className="proj-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+      </div>
 
-const SHAPES = [RingObject, SphereObject, PrismObject, CubeObject, DiamondObject];
+      {/* Main Content: Title & Description */}
+      <div className="proj-body">
+        <h3 className="proj-title">{project.title}</h3>
+        <p className="proj-desc">{project.description}</p>
+      </div>
 
-/* ─────────────────────────────────────────
-   TILT CARD
-───────────────────────────────────────── */
-function TiltCard({ project, index }) {
-    const cardRef = useRef(null);
-    const [hovered, setHovered] = useState(false);
-
-    const ShapeEl = SHAPES[index % SHAPES.length];
-
-    const handleMove = (e) => {
-        const card = cardRef.current;
-        if (!card) return;
-        const rect = card.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-        card.style.setProperty('--rot-x', `${(0.5 - y) * 14}deg`);
-        card.style.setProperty('--rot-y', `${(x - 0.5) * 14}deg`);
-        card.style.setProperty('--spot-x', `${x * 100}%`);
-        card.style.setProperty('--spot-y', `${y * 100}%`);
-    };
-
-    const reset = () => {
-        setHovered(false);
-        const card = cardRef.current;
-        if (!card) return;
-        card.style.setProperty('--rot-x', '0deg');
-        card.style.setProperty('--rot-y', '0deg');
-    };
-
-    const hasDemo = project.demoLink && project.demoLink !== '#';
-
-    return (
-        <div
-            ref={cardRef}
-            className={`proj-card proj-card-${index}`}
-            onMouseMove={handleMove}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={reset}
-        >
-            {/* Noise texture overlay */}
-            <div className="proj-noise" />
-
-            {/* Cursor spotlight */}
-            <div className="proj-shine" />
-
-            {/* Bottom ambient glow */}
-            <div className="proj-ambient" />
-
-            {/* 3D object */}
-            <div className={`proj-obj-wrap ${hovered ? 'obj-active' : ''}`}>
-                <ShapeEl />
-            </div>
-
-            {/* Content layer */}
-            <div className="proj-content">
-
-                {/* Top row */}
-                <div className="proj-topline">
-                    <span className="proj-num">{String(index + 1).padStart(2, '0')}</span>
-                    <span className="proj-cat-pill">{project.category}</span>
-                </div>
-
-                {/* Spacer pushes copy to bottom */}
-                <div className="proj-spacer" />
-
-                {/* Copy */}
-                <div className="proj-copy">
-                    <div className="proj-title-row">
-                        <h3 className="proj-title">{project.title}</h3>
-                        {hasDemo ? (
-                            <a
-                                href={project.demoLink}
-                                className="proj-arrow-btn proj-arrow-primary"
-                                target="_blank"
-                                rel="noreferrer"
-                                aria-label={`${project.title} Demo`}
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                <i className="fas fa-arrow-up-right-from-square" />
-                            </a>
-                        ) : (
-                            <span className="proj-arrow-btn proj-arrow-disabled" title="Coming soon">
-                                <i className="fas fa-clock" />
-                            </span>
-                        )}
-                    </div>
-                    <p className="proj-desc">{project.description}</p>
-                </div>
-
-                {/* Tags */}
-                <div className="proj-tags">
-                    {project.techStack?.slice(0, 4).map((tag) => (
-                        <span key={tag} className="proj-tag">{tag}</span>
-                    ))}
-                </div>
-            </div>
+      {/* Footer: Tech Stack Badges & Launch Button */}
+      <div className="proj-footer">
+        <div className="proj-tags">
+          {project.techStack?.map((tag) => (
+            <span key={tag} className="proj-tag">{tag}</span>
+          ))}
         </div>
-    );
+
+        <div className="proj-action">
+          {hasLink ? (
+            <a
+              href={targetLink}
+              target="_blank"
+              rel="noreferrer"
+              className="proj-btn"
+              aria-label={`Visit ${project.title}`}
+            >
+              <span>View Project</span>
+              <i className={isGithub ? 'fab fa-github' : 'fas fa-arrow-up-right-from-square'} aria-hidden="true" />
+            </a>
+          ) : (
+            <span className="proj-btn proj-btn-disabled" title="Project link coming soon">
+              <span>Coming Soon</span>
+              <i className="fas fa-clock" aria-hidden="true" />
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
-/* ─────────────────────────────────────────
-   PROJECTS SECTION
-───────────────────────────────────────── */
 export default function Projects() {
-    const { projects } = usePortfolio();
-    const [activeFilter, setActiveFilter] = useState('All');
+  const { projects } = usePortfolio();
+  const [activeFilter, setActiveFilter] = useState('All');
 
-    const categories = useMemo(() => {
-        const cats = projects.map((p) => p.category).filter(Boolean);
-        return ['All', ...new Set(cats)];
-    }, [projects]);
+  const categories = useMemo(() => {
+    const cats = projects.map((p) => p.category).filter(Boolean);
+    return ['All', ...new Set(cats)];
+  }, [projects]);
 
-    const filtered = useMemo(() => {
-        if (activeFilter === 'All') return projects;
-        return projects.filter((p) => p.category === activeFilter);
-    }, [projects, activeFilter]);
+  const filtered = useMemo(() => {
+    if (activeFilter === 'All') return projects;
+    return projects.filter((p) => p.category === activeFilter);
+  }, [projects, activeFilter]);
 
-    if (!projects.length) return null;
+  if (!projects.length) return null;
 
-    return (
-        <section className="section" id="projects" aria-labelledby="projects-heading">
-            <div className="container">
+  return (
+    <section className="section" id="projects" aria-labelledby="projects-heading">
+      <div className="container">
 
-                <div className="section-eyebrow reveal">
-                    <div className="section-eyebrow-line" />
-                    <span className="section-eyebrow-text">05 / Completed Tasks</span>
-                </div>
+        <div className="section-eyebrow reveal">
+          <div className="section-eyebrow-line" />
+          <span className="section-eyebrow-text">05 / Completed Tasks</span>
+        </div>
 
-                <h2
-                    className="section-title reveal"
-                    id="projects-heading"
-                    style={{ transitionDelay: '200ms' }}
-                >
-                    Featured <span className="accent">Projects</span>
-                </h2>
+        <h2
+          className="section-title reveal"
+          id="projects-heading"
+          style={{ transitionDelay: '80ms' }}
+        >
+          Featured <span className="accent">Projects</span>
+        </h2>
 
-                {/* Filter bar */}
-                <div className="filter-bar reveal" style={{ transitionDelay: '140ms' }}>
-                    {categories.map((cat) => (
-                        <button
-                            key={cat}
-                            className={`filter-btn ${activeFilter === cat ? 'active' : ''}`}
-                            onClick={() => setActiveFilter(cat)}
-                            aria-pressed={activeFilter === cat}
-                        >
-                            {cat}
-                        </button>
-                    ))}
-                </div>
+        {/* Filter bar */}
+        <div className="filter-bar reveal" style={{ transitionDelay: '140ms' }}>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              className={`filter-btn ${activeFilter === cat ? 'active' : ''}`}
+              onClick={() => setActiveFilter(cat)}
+              aria-pressed={activeFilter === cat}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
 
-                {/* Tilt card grid */}
-                <div className="proj-grid">
-                    {filtered.map((project, i) => (
-                        <TiltCard key={project._id || project.title} project={project} index={i} />
-                    ))}
-                </div>
+        {/* Projects Grid */}
+        <div className="proj-grid">
+          {filtered.map((project, i) => (
+            <ProjectCard key={project._id || project.title} project={project} index={i} />
+          ))}
+        </div>
 
-            </div>
+      </div>
 
-            <style>{`
-
+      <style>{`
         /* ═══════════════════════════════════════
-           GRID
+           GRID LAYOUT
         ═══════════════════════════════════════ */
         .proj-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          grid-auto-rows: 1fr;
-          gap: 18px;
+          grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+          gap: 24px;
         }
-        .proj-grid::before {
-          content: '';
-          width: 0;
-          padding-bottom: 100%;
-          grid-row: 1;
-          grid-column: 1;
-        }
-        .proj-grid > *:first-child {
-          grid-row: 1;
-          grid-column: 1;
-        }
-        @media (max-width: 760px) {
-          .proj-grid { grid-template-columns: 1fr; }
-          .proj-grid::before { display: none; }
+
+        @media (max-width: 768px) {
+          .proj-grid {
+            grid-template-columns: 1fr;
+            gap: 18px;
+          }
         }
 
         /* ═══════════════════════════════════════
-           CARD BASE
+           PROJECT CARD BASE
         ═══════════════════════════════════════ */
         .proj-card {
           position: relative;
-          aspect-ratio: 1 / 1;
-          min-height: 0;
-          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          border-radius: 18px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(12, 12, 16, 0.88);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          padding: 28px 26px;
+          min-height: 290px;
           overflow: hidden;
-          border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          background: rgba(10, 10, 14, 0.96);
-          transform-style: preserve-3d;
-          transform: perspective(900px) rotateX(var(--rot-x,0deg)) rotateY(var(--rot-y,0deg));
           transition:
-            transform 0.18s ease-out,
-            border-color 0.55s ease,
-            box-shadow 0.55s ease;
-          cursor: default;
-          isolation: isolate;
+            opacity var(--slow) var(--ease),
+            transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+            border-color 0.35s ease,
+            box-shadow 0.35s ease,
+            background 0.3s ease;
+          transition-delay: 0s !important;
+          will-change: transform;
         }
+
+        /* Hover: Same lift, enlargement, and ambient red backlight as skill cards */
         .proj-card:hover {
-          border-color: rgba(255, 70, 85, 0.32);
+          transform: translateY(-8px) scale(1.02);
+          border-color: rgba(255, 70, 85, 0.42);
+          background: rgba(14, 14, 18, 0.94);
           box-shadow:
-            0 0 0 1px rgba(255, 70, 85, 0.12),
-            0 32px 80px -20px rgba(0, 0, 0, 0.85),
-            0 0 55px -18px rgba(255, 70, 85, 0.14);
+            0 0 0 1px rgba(255, 70, 85, 0.28),
+            0 0 35px 8px rgba(255, 70, 85, 0.24),
+            0 0 75px 20px rgba(255, 70, 85, 0.12),
+            0 22px 50px -15px rgba(0, 0, 0, 0.95);
+          z-index: 2;
         }
 
-        /* Per-card background tints */
-        .proj-card-0 { background: radial-gradient(ellipse at 15% 85%, rgba(28,10,16,0.98) 0%, rgba(8,8,12,1) 60%); }
-        .proj-card-1 { background: radial-gradient(ellipse at 85% 15%, rgba(10,16,26,0.98) 0%, rgba(6,6,10,1) 60%); }
-        .proj-card-2 { background: radial-gradient(ellipse at 15% 15%, rgba(18,18,12,0.98) 0%, rgba(8,8,12,1) 60%); }
-        .proj-card-3 { background: radial-gradient(ellipse at 85% 85%, rgba(12,8,20,0.98) 0%, rgba(6,6,10,1) 60%); }
-        .proj-card-4 { background: radial-gradient(ellipse at 50% 50%, rgba(16,12,18,0.98) 0%, rgba(8,8,12,1) 60%); }
+        /* Top-edge animated red line on hover */
+        .proj-card::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--red), transparent);
+          transform: scaleX(0);
+          transition: transform var(--base) var(--ease);
+        }
+        .proj-card:hover::after {
+          transform: scaleX(1);
+        }
 
-        /* ═══════════════════════════════════════
-           NOISE TEXTURE
-        ═══════════════════════════════════════ */
+        /* Subtle noise texture */
         .proj-noise {
           position: absolute;
           inset: 0;
@@ -263,306 +205,193 @@ export default function Projects() {
         }
 
         /* ═══════════════════════════════════════
-           CURSOR SPOTLIGHT
+           CARD HEADER (Domain badge & index)
         ═══════════════════════════════════════ */
-        .proj-shine {
-          position: absolute;
-          inset: -30%;
-          background: radial-gradient(
-            circle at var(--spot-x, 50%) var(--spot-y, 50%),
-            rgba(255, 85, 90, 0.2) 0%,
-            rgba(255, 70, 85, 0.05) 32%,
-            transparent 60%
-          );
-          opacity: 0;
-          transition: opacity 0.38s ease;
-          pointer-events: none;
-          z-index: 1;
-        }
-        .proj-card:hover .proj-shine { opacity: 1; }
-
-        /* ═══════════════════════════════════════
-           AMBIENT BOTTOM GLOW
-        ═══════════════════════════════════════ */
-        .proj-ambient {
-          position: absolute;
-          bottom: -40px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 65%;
-          height: 80px;
-          background: radial-gradient(ellipse, rgba(255, 70, 85, 0.12) 0%, transparent 70%);
-          pointer-events: none;
-          opacity: 0;
-          transition: opacity 0.55s ease;
-          z-index: 0;
-        }
-        .proj-card:hover .proj-ambient { opacity: 1; }
-
-        /* ═══════════════════════════════════════
-           3D OBJECT WRAPPER
-        ═══════════════════════════════════════ */
-        .proj-obj-wrap {
-          position: absolute;
-          left: 55%;
-          top: 42%;
-          transform-style: preserve-3d;
-          transition: transform 0.65s cubic-bezier(0.2, 0.9, 0.1, 1), opacity 0.45s ease;
-          pointer-events: none;
-          z-index: 2;
-          opacity: 0.5;
-        }
-        .proj-obj-wrap.obj-active {
-          transform: translateZ(62px) scale(1.14) rotateZ(18deg);
-          opacity: 0.78;
-        }
-
-        /* Sphere */
-        .proj-sphere {
-          width: 160px;
-          height: 160px;
-          margin: -80px;
-          border-radius: 50%;
-          background: radial-gradient(
-            circle at 28% 22%,
-            #ffffff 0 3%,
-            #c4c4c0 15%,
-            #242424 50%,
-            #060606 70%
-          );
-          box-shadow:
-            -22px 13px 44px rgba(0,0,0,0.75),
-            0 0 50px rgba(255,70,85,0.12),
-            inset 0 0 22px rgba(255,70,85,0.04);
-          position: relative;
-        }
-        .proj-sphere span {
-          position: absolute;
-          inset: -30px;
-          border: 1.5px solid rgba(255, 70, 85, 0.42);
-          border-radius: 50%;
-          transform: rotateX(74deg);
-          box-shadow: 0 0 14px rgba(255,70,85,0.12);
-        }
-
-        /* Ring */
-        .proj-ring {
-          width: 196px;
-          height: 196px;
-          margin: -98px;
-          border-radius: 50%;
-          border: 25px solid rgba(238, 238, 234, 0.88);
-          border-right-color: var(--red);
-          border-bottom-color: #1c1c1c;
-          box-shadow: 0 0 30px rgba(255, 70, 85, 0.38), inset 0 0 10px rgba(255,70,85,0.06);
-          transform: rotateX(65deg) rotateZ(-25deg);
-          position: relative;
-        }
-        .proj-ring span {
-          position: absolute;
-          inset: -52px;
-          border: 1px solid rgba(255, 255, 255, 0.09);
-          border-radius: 50%;
-        }
-
-        /* Prism */
-        .proj-prism {
-          width: 138px;
-          height: 138px;
-          margin: -69px;
-          transform: rotate(28deg) skew(-9deg,-9deg);
-          background: linear-gradient(135deg, #080808 3%, rgba(255,70,85,0.82) 4% 9%, #dcdcd7 10% 47%, #181818 48%);
-          box-shadow: 27px 27px 0 rgba(118,118,116,0.65), 0 0 44px rgba(255,70,85,0.28);
-          position: relative;
-        }
-        .proj-prism span:first-child { position: absolute; inset: -1px; border: 0.5px solid rgba(255,70,85,0.32); }
-        .proj-prism span:last-child  { position: absolute; inset: 9px;  border: 0.5px solid rgba(255,255,255,0.09); }
-
-        /* Cube */
-        .proj-cube {
-          width: 108px;
-          height: 108px;
-          margin: -54px;
-          background: rgba(255,255,255,0.025);
-          border: 1px solid rgba(255,255,255,0.16);
-          box-shadow: 0 0 30px rgba(255,70,85,0.07);
-          position: relative;
-        }
-        .proj-cube span:nth-child(1) { position: absolute; inset: -14px; border: 0.5px solid rgba(255,255,255,0.09); transform: rotateZ(22deg); }
-        .proj-cube span:nth-child(2) { position: absolute; inset: -26px; border: 0.5px solid rgba(255,255,255,0.055); transform: rotateZ(-14deg); }
-        .proj-cube span:nth-child(3) { position: absolute; inset: 12px;  border: 0.5px solid rgba(255,70,85,0.18); }
-
-        /* Diamond */
-        .proj-diamond {
-          width: 98px;
-          height: 98px;
-          margin: -49px;
-          background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,70,85,0.22) 50%, rgba(255,255,255,0.03) 100%);
-          border: 1px solid rgba(255,255,255,0.18);
-          transform: rotate(45deg);
-          box-shadow: 0 0 40px rgba(255,70,85,0.22), inset 0 0 18px rgba(255,255,255,0.03);
-          position: relative;
-        }
-        .proj-diamond span {
-          position: absolute;
-          inset: 12px;
-          border: 0.5px solid rgba(255,70,85,0.28);
-        }
-
-        /* ═══════════════════════════════════════
-           CONTENT LAYER
-        ═══════════════════════════════════════ */
-        .proj-content {
-          position: absolute;
-          inset: 0;
-          padding: 22px;
-          display: flex;
-          flex-direction: column;
-          z-index: 3;
-        }
-
-        /* Top row */
-        .proj-topline {
+        .proj-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-        }
-        .proj-num {
-          font-family: var(--font-display);
-          font-size: 11px;
-          font-weight: 700;
-          color: rgba(255,255,255,0.22);
-          letter-spacing: 2.5px;
+          margin-bottom: 20px;
+          position: relative;
+          z-index: 1;
         }
 
-        /* Pill badge for category */
-        .proj-cat-pill {
-          font-family: var(--font-mono);
-          font-size: 9px;
-          color: rgba(255, 70, 85, 0.8);
-          background: rgba(255, 70, 85, 0.08);
-          border: 1px solid rgba(255, 70, 85, 0.2);
-          padding: 3px 10px;
+        .proj-cat-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          padding: 4px 12px;
           border-radius: 999px;
-          letter-spacing: 0.8px;
+          background: rgba(255, 70, 85, 0.08);
+          border: 1px solid rgba(255, 70, 85, 0.22);
+          transition: background 0.35s ease, border-color 0.35s ease;
+        }
+        .proj-card:hover .proj-cat-badge {
+          background: rgba(255, 70, 85, 0.14);
+          border-color: rgba(255, 70, 85, 0.45);
+        }
+
+        .proj-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--red);
+          box-shadow: 0 0 6px rgba(255, 70, 85, 0.7);
+        }
+
+        .proj-cat-text {
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 1.2px;
           text-transform: uppercase;
-          transition: background 0.4s ease, border-color 0.4s ease;
-        }
-        .proj-card:hover .proj-cat-pill {
-          background: rgba(255, 70, 85, 0.15);
-          border-color: rgba(255, 70, 85, 0.42);
+          color: rgba(255, 255, 255, 0.85);
+          font-weight: 500;
         }
 
-        /* Spacer */
-        .proj-spacer { flex: 1; }
+        .proj-index {
+          font-family: var(--font-display);
+          font-size: 12px;
+          font-weight: 700;
+          color: rgba(255, 255, 255, 0.25);
+          letter-spacing: 2px;
+          transition: color 0.35s ease;
+        }
+        .proj-card:hover .proj-index {
+          color: rgba(255, 70, 85, 0.6);
+        }
 
-        /* Copy block */
-        .proj-copy {
-          margin-bottom: 14px;
+        /* ═══════════════════════════════════════
+           CARD BODY (Title & Description)
+        ═══════════════════════════════════════ */
+        .proj-body {
+          flex: 1;
+          margin-bottom: 22px;
+          position: relative;
+          z-index: 1;
         }
-        .proj-title-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 10px;
-          margin-bottom: 8px;
-        }
+
         .proj-title {
           font-family: var(--font-display);
-          font-size: clamp(14px, 1.7vw, 20px);
+          font-size: 19px;
           font-weight: 700;
           color: var(--white);
-          margin: 0;
-          letter-spacing: -0.04em;
-          line-height: 1.2;
-          flex: 1;
+          margin-bottom: 10px;
+          letter-spacing: 0.5px;
+          line-height: 1.3;
+          transition: color 0.3s ease;
         }
-        /* Underline accent animates in on hover */
         .proj-title::after {
           content: '';
           display: block;
           width: 0;
           height: 1px;
-          background: linear-gradient(90deg, rgba(255,70,85,0.65), transparent);
+          background: linear-gradient(90deg, var(--red), transparent);
           margin-top: 6px;
-          transition: width 0.42s ease;
+          transition: width 0.4s ease;
         }
-        .proj-card:hover .proj-title::after { width: 55%; }
+        .proj-card:hover .proj-title::after {
+          width: 50%;
+        }
 
         .proj-desc {
-          font-size: 11.5px;
-          color: rgba(255,255,255,0.38);
-          line-height: 1.6;
+          font-size: 13.5px;
+          color: var(--text-secondary);
+          line-height: 1.65;
           margin: 0;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          transition: color 0.4s ease;
-        }
-        .proj-card:hover .proj-desc { color: rgba(255,255,255,0.58); }
-
-        /* Tags */
-        .proj-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 5px;
-        }
-        .proj-tag {
-          font-family: var(--font-mono);
-          font-size: 9.5px;
-          color: rgba(255,255,255,0.38);
-          border: 1px solid rgba(255,255,255,0.09);
-          padding: 4px 8px;
-          border-radius: 5px;
-          background: rgba(255,255,255,0.025);
-          letter-spacing: 0.3px;
-          transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
-        }
-        .proj-card:hover .proj-tag {
-          color: rgba(255,255,255,0.62);
-          border-color: rgba(255,255,255,0.18);
-          background: rgba(255,255,255,0.05);
         }
 
         /* ═══════════════════════════════════════
-           ARROW BUTTON
+           CARD FOOTER (Tags & Action Button)
         ═══════════════════════════════════════ */
-        .proj-arrow-btn {
-          width: 32px;
-          height: 32px;
-          flex-shrink: 0;
+        .proj-footer {
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+          position: relative;
+          z-index: 1;
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          padding-top: 16px;
+        }
+
+        .proj-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        .proj-tag {
+          font-family: var(--font-mono);
+          font-size: 10px;
+          color: var(--text-secondary);
+          border: 0.5px solid var(--hull-border);
+          padding: 3px 9px;
+          border-radius: 6px;
+          background: rgba(255, 255, 255, 0.02);
+          letter-spacing: 0.5px;
+          transition: border-color var(--fast) ease, color var(--fast) ease, background var(--fast) ease;
+        }
+        .proj-card:hover .proj-tag {
+          border-color: rgba(255, 70, 85, 0.28);
+          color: rgba(255, 255, 255, 0.8);
+          background: rgba(255, 70, 85, 0.04);
+        }
+
+        /* ═══════════════════════════════════════
+           VISIT PROJECT BUTTON
+        ═══════════════════════════════════════ */
+        .proj-action {
+          display: flex;
+          align-items: center;
+        }
+
+        .proj-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          width: 100%;
+          padding: 10px 18px;
+          font-family: var(--font-body);
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
           border-radius: 10px;
-          border: 1px solid rgba(255,255,255,0.1);
-          background: rgba(255,255,255,0.04);
-          display: grid;
-          place-items: center;
-          color: rgba(255,255,255,0.35);
-          font-size: 11px;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          background: rgba(255, 255, 255, 0.03);
+          color: var(--text-primary);
           text-decoration: none;
           transition:
-            transform 0.38s cubic-bezier(0.2,0.9,0.1,1),
-            background 0.38s ease,
-            color 0.38s ease,
-            border-color 0.38s ease,
-            box-shadow 0.38s ease;
-          cursor: pointer;
-          align-self: flex-start;
+            background 0.35s ease,
+            border-color 0.35s ease,
+            color 0.35s ease,
+            box-shadow 0.35s ease,
+            transform 0.25s ease;
         }
-        .proj-arrow-primary:hover,
-        .proj-card:hover .proj-arrow-primary {
-          transform: rotate(45deg) scale(1.08);
-          background: var(--red);
-          color: #fff;
+
+        .proj-btn i {
+          font-size: 12px;
+          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .proj-btn:hover {
+          background: linear-gradient(90deg, rgba(255, 70, 85, 0.9), rgba(211, 47, 47, 0.9));
           border-color: var(--red);
-          box-shadow: 0 0 18px rgba(255,70,85,0.4);
-          transition: all 0.5s ease;
+          color: #ffffff;
+          box-shadow: 0 0 20px rgba(255, 70, 85, 0.4);
+          transform: translateY(-2px);
         }
-        .proj-arrow-disabled {
-          opacity: 0.18;
+
+        .proj-btn:hover i {
+          transform: translate(2px, -2px);
+        }
+
+        .proj-btn-disabled {
+          opacity: 0.4;
           cursor: not-allowed;
+          justify-content: center;
         }
       `}</style>
-        </section>
-    );
+    </section>
+  );
 }

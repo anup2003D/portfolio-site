@@ -35,36 +35,8 @@ function useBarAnimation() {
 }
 
 function SkillCard({ cat }) {
-  const cardRef = useRef(null);
-
-  const handleMove = (e) => {
-    const card = cardRef.current;
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    const rotX = (0.5 - y) * 16;
-    const rotY = (x - 0.5) * 16;
-    card.style.setProperty('--rot-x', `${rotX.toFixed(2)}deg`);
-    card.style.setProperty('--rot-y', `${rotY.toFixed(2)}deg`);
-    card.style.setProperty('--mx', `${e.clientX - rect.left - 80}px`);
-    card.style.setProperty('--my', `${e.clientY - rect.top - 80}px`);
-  };
-
-  const handleLeave = () => {
-    const card = cardRef.current;
-    if (!card) return;
-    card.style.setProperty('--rot-x', '0deg');
-    card.style.setProperty('--rot-y', '0deg');
-  };
-
   return (
-    <div
-      ref={cardRef}
-      className="skill-card reveal"
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-    >
+    <div className="skill-card reveal">
       <span className="skill-card-icon" aria-hidden="true">
         {ICON_MAP[cat.category] || '🔧'}
       </span>

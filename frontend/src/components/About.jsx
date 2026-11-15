@@ -14,11 +14,11 @@ function useCounter(target, duration = 1400) {
           animated.current = true;
           const match = target.match(/^(\d+)(.*)$/);
           if (!match) { setCount(target); return; }
-          const num    = parseInt(match[1], 10);
+          const num = parseInt(match[1], 10);
           const suffix = match[2] || '';
-          const start  = performance.now();
-          const tick   = (now) => {
-            const p    = Math.min((now - start) / duration, 1);
+          const start = performance.now();
+          const tick = (now) => {
+            const p = Math.min((now - start) / duration, 1);
             const ease = 1 - Math.pow(1 - p, 3);
             setCount(Math.floor(num * ease) + suffix);
             if (p < 1) requestAnimationFrame(tick);
@@ -68,9 +68,9 @@ export default function About() {
               About <span className="accent">Me</span>
             </h2>
 
-            <span className="about-tag reveal" style={{ transitionDelay: '120ms' }}>
+            {/* <span className="about-tag reveal" style={{ transitionDelay: '120ms' }}>
               // crew member profile
-            </span>
+            </span> */}
 
             <p className="about-text reveal" style={{ transitionDelay: '160ms' }}>
               {portfolio.about ||
@@ -99,8 +99,8 @@ export default function About() {
             </div>
           </div>
 
-          </div>
         </div>
+      </div>
     </section>
   );
 }

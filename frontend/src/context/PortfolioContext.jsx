@@ -14,7 +14,7 @@ const FALLBACK_PORTFOLIO = {
   resumeLink: `${import.meta.env.BASE_URL}Anup_Dutta_New_Resume.pdf`,
   social: {
     github: "https://github.com/anup2003D",
-    linkedin: "https://www.linkedin.com/in/anup-dutta-9198171b6/",
+    linkedin: "https://www.linkedin.com/in/anupdutta03/",
     twitter: "",
   },
   about: "I'm a passionate Data Analyst with expertise in transforming complex data into actionable insights. With a strong background in statistical analysis, data visualization, and web development, I help businesses make data-driven decisions that drive growth and innovation.",
