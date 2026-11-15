@@ -99,22 +99,8 @@ export default function About() {
             </div>
           </div>
 
-          {/* Right: image */}
-          <div className="about-image-wrap reveal-right" style={{ transitionDelay: '160ms' }}>
-            <div className="about-image-frame">
-              <img
-                src={`${import.meta.env.BASE_URL}Profile_CV.jpg`}
-                alt="Anup Dutta"
-                loading="lazy"
-              />
-            </div>
-            <div className="about-image-badge">
-              <span>Open to work</span>
-            </div>
           </div>
-
         </div>
-      </div>
     </section>
   );
 }

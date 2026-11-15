@@ -172,7 +172,7 @@ export default function Navigation({ ready }) {
 
         {/* Drawer footer */}
         <div className="nav-mobile-footer">
-          <span className="nav-mobile-footer-text">// emergency meeting called</span>
+          <span className="nav-mobile-footer-text">// anup dutta · built with react</span>
         </div>
       </div>
     </>

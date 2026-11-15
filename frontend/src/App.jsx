@@ -55,64 +55,7 @@ function Starfield() {
   return <canvas ref={canvasRef} className="starfield" aria-hidden="true" />;
 }
 
-/* ─────────────────────────────────────────
-   CREWMATE SVG CURSOR
-   Replaces the plain dot+ring with an actual
-   mini Among Us crewmate shape that follows
-   the mouse.
-───────────────────────────────────────── */
-function CrewmateCursor({ killMode }) {
-  const cursorRef = useRef(null);
-  const mouse = useRef({ x: -100, y: -100 });
-  const pos = useRef({ x: -100, y: -100 });
-
-  useEffect(() => {
-    const onMove = (e) => { mouse.current = { x: e.clientX, y: e.clientY }; };
-    let raf;
-    const animate = () => {
-      pos.current.x += (mouse.current.x - pos.current.x) * 0.18;
-      pos.current.y += (mouse.current.y - pos.current.y) * 0.18;
-      if (cursorRef.current) {
-        cursorRef.current.style.transform =
-          `translate(${pos.current.x - 14}px, ${pos.current.y - 20}px)`;
-      }
-      raf = requestAnimationFrame(animate);
-    };
-    window.addEventListener('mousemove', onMove);
-    raf = requestAnimationFrame(animate);
-    return () => { window.removeEventListener('mousemove', onMove); cancelAnimationFrame(raf); };
-  }, []);
-
-  // Hide on touch devices
-  if (typeof window !== 'undefined' && 'ontouchstart' in window) return null;
-
-  return (
-    <div
-      ref={cursorRef}
-      style={{
-        position: 'fixed', top: 0, left: 0, zIndex: 99999,
-        pointerEvents: 'none', willChange: 'transform',
-        filter: killMode
-          ? 'drop-shadow(0 0 8px #ff4655) drop-shadow(0 0 20px rgba(255,70,85,0.5))'
-          : 'drop-shadow(0 0 4px rgba(255,255,255,0.3))',
-        transition: 'filter 0.2s ease',
-      }}
-    >
-      <svg width="28" height="36" viewBox="0 0 60 78" fill="none">
-        {/* Backpack */}
-        <rect x="46" y="22" width="10" height="18" rx="4" fill={killMode ? '#8b0000' : '#555'} />
-        {/* Body */}
-        <ellipse cx="28" cy="30" rx="20" ry="26" fill={killMode ? '#ff4655' : '#e0e0e0'} />
-        {/* Visor */}
-        <ellipse cx="28" cy="25" rx="13" ry="10" fill="#c5e8ff" opacity="0.92" />
-        <ellipse cx="24" cy="23" rx="5" ry="4" fill="white" opacity="0.35" />
-        {/* Legs */}
-        <rect x="12" y="50" width="14" height="16" rx="5" fill={killMode ? '#cc2233' : '#aaa'} />
-        <rect x="30" y="50" width="14" height="16" rx="5" fill={killMode ? '#cc2233' : '#aaa'} />
-      </svg>
-    </div>
-  );
-}
+/* CrewmateCursor removed — using default system cursor */
 
 /* ─────────────────────────────────────────
    KILL ANIMATION OVERLAY
@@ -333,10 +276,7 @@ function useSkillSpotlight(ready) {
    MAIN APP CONTENT
 ───────────────────────────────────────── */
 function AppContent() {
-  const [killActive, setKillActive] = useState(false);
-  const [killMode, setKillMode] = useState(false);
   const [loadingDone, setLoadingDone] = useState(false);
-  const pendingNav = useRef(null);
 
   const { loading } = usePortfolio();
   const ready = !loading && loadingDone;
@@ -345,49 +285,8 @@ function AppContent() {
   useProjectSlide(ready);
   useSkillSpotlight(ready);
 
+  /* Audio hook still used for loading screen only */
   const { playKillSound } = useAudio(loadingDone);
-
-  /* Kill trigger */
-  const triggerKill = useCallback((callback) => {
-    pendingNav.current = callback;
-    setKillMode(true);
-    setKillActive(true);
-    playKillSound();
-  }, [playKillSound]);
-
-  const onKillDone = useCallback(() => {
-    setKillActive(false);
-    setKillMode(false);
-    if (pendingNav.current) { pendingNav.current(); pendingNav.current = null; }
-  }, []);
-
-  /* Intercept ALL interactive element clicks — anchor links AND buttons */
-  useEffect(() => {
-    const onClick = (e) => {
-      // Anchor links that jump to a section
-      const link = e.target.closest('a[href^="#"]');
-      if (link) {
-        const href = link.getAttribute('href');
-        if (!href || href === '#') return;
-        e.preventDefault();
-        triggerKill(() => {
-          const target = document.querySelector(href);
-          if (target) target.scrollIntoView({ behavior: 'smooth' });
-        });
-        return;
-      }
-
-      // Filter buttons in the projects section (non-anchor buttons)
-      const filterBtn = e.target.closest('.filter-btn');
-      // if (filterBtn) {
-      //   triggerKill(() => filterBtn.click()); // re-fire after animation
-      //   return;
-      // }
-    };
-
-    document.addEventListener('click', onClick);
-    return () => document.removeEventListener('click', onClick);
-  }, [triggerKill]);
 
   return (
     <>
@@ -397,8 +296,6 @@ function AppContent() {
       )}
 
       <Starfield />
-      <CrewmateCursor killMode={killMode} />
-      <KillOverlay active={killActive} onDone={onKillDone} />
       <Navigation ready={ready} />
 
       {!loading && loadingDone && (

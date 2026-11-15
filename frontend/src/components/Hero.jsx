@@ -179,7 +179,7 @@ export default function Hero() {
   return (
     <section className="hero" id="home" ref={heroRef} aria-label="Hero section">
 
-      <div className="hero-ambient" aria-hidden="true" />
+
 
       {/* Decorative grid */}
       <div aria-hidden="true" style={{
@@ -199,7 +199,7 @@ export default function Hero() {
 
           <div className="hero-eyebrow reveal">
             <div className="hero-eyebrow-line" />
-            <span className="hero-eyebrow-text">// emergency meeting called</span>
+            <span className="hero-eyebrow-text">// Welcome to my portfolio</span>
           </div>
 
           <h1 className="hero-name reveal" style={{ transitionDelay: '100ms' }}>
@@ -265,18 +265,42 @@ export default function Hero() {
 
         </div>
 
-        {/* ── RIGHT: Crewmate ── */}
-        <div className="crewmate-wrap reveal-right" style={{ transitionDelay: '200ms' }}>
-          <div className="crewmate-bob">
+        {/* ── RIGHT: Image — left edge sits 50px right of page centre ── */}
+        <div
+          className="crewmate-wrap reveal-right"
+          style={{
+            transitionDelay: '200ms',
+            position: 'absolute',
+            left: 'calc(50% + 150px)',
+            top: '50%',
+            transform: 'translateY(calc(-50% - 70px))',
+            height: '400px',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <div>
             <div
               ref={crewmateRef}
               className="crewmate-svg-wrap"
               style={{ transition: 'transform 0.8s ease-out' }}
             >
-              <CrewmateSVG size={200} />
+              <img
+                src="/image/portfolio image.png"
+                alt="Portfolio image"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  maxWidth: '340px',
+                  height: '400px',
+                  objectFit: 'cover',
+                  objectPosition: 'center top',
+                  borderRadius: '12px',
+                }}
+              />
             </div>
           </div>
-          <div className="crewmate-glow-ring" aria-hidden="true" />
+          {/* Glow ring removed - keeping clean image display */}
         </div>
 
       </div>

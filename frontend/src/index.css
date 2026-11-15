@@ -119,12 +119,7 @@ ul {
 
 /* ── Custom Cursor ── */
 /* ── Crewmate cursor — replaces old dot+ring ── */
-/* Hide the system cursor on desktop (hover-capable) devices */
-@media (hover: hover) {
-  * {
-    cursor: none !important;
-  }
-}
+/* Default system cursor restored */
 
 /* The CrewmateCursor component is hidden on touch via JS check */
 
@@ -756,7 +751,7 @@ ul {
 
 .about-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 60px;
   align-items: center;
 }
