@@ -6,8 +6,8 @@ function ProjectCard({ project, index }) {
     project.demoLink && project.demoLink !== '#'
       ? project.demoLink
       : project.githubLink && project.githubLink !== '#'
-      ? project.githubLink
-      : null;
+        ? project.githubLink
+        : null;
 
   const isGithub = targetLink && targetLink.includes('github.com');
   const hasLink = Boolean(targetLink);
