@@ -1,17 +1,10 @@
 import { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
-import { api } from '../api/client';
 
-/*
-  BUG FIX: Contact form always ended up in error state since the backend
-  is offline, with no alternative for the user.
-  Fix: on backend failure, show a pre-filled mailto: link so the visitor
-  can still reach Anup directly with their message already written.
-*/
 export default function Contact() {
   const { portfolio } = usePortfolio();
   const [form,    setForm]    = useState({ name: '', email: '', message: '' });
-  const [status,  setStatus]  = useState(null); // null | 'sending' | 'sent' | 'error'
+  const [status,  setStatus]  = useState(null); // null | 'sending' | 'sent'
 
   if (!portfolio) return null;
 
@@ -19,25 +12,21 @@ export default function Contact() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!form.name || !form.email || !form.message) return;
-    setStatus('sending');
-    try {
-      await api.submitContact(form);
-      setStatus('sent');
-      setForm({ name: '', email: '', message: '' });
-    } catch {
-      setStatus('error');
-    }
-  };
-
-  // Pre-fill a mailto: link with the form data so users aren't left stranded
+  // Pre-fill a mailto: link with the form data
   const mailtoHref = portfolio.email
     ? `mailto:${portfolio.email}?subject=${encodeURIComponent('Portfolio Contact')}&body=${encodeURIComponent(
         `Hi Anup,\n\nName: ${form.name}\nEmail: ${form.email}\n\n${form.message}`
       )}`
     : null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.name || !form.email || !form.message) return;
+    setStatus('sent');
+    if (mailtoHref) {
+      window.location.href = mailtoHref;
+    }
+  };
 
   return (
     <section className="section" id="contact" aria-labelledby="contact-heading">
@@ -168,21 +157,7 @@ export default function Contact() {
 
               {status === 'sent' && (
                 <p style={{ color: '#4ade80', fontSize: 13, marginTop: 12 }}>
-                  ✓ Message received. I'll be in touch soon.
-                </p>
-              )}
-
-              {status === 'error' && (
-                <p style={{ color: 'var(--red)', fontSize: 13, marginTop: 12, lineHeight: 1.7 }}>
-                  Server offline.{' '}
-                  {mailtoHref ? (
-                    <a href={mailtoHref} style={{ color: 'var(--red)', fontWeight: 700, textDecoration: 'underline' }}>
-                      Click here to email me directly
-                    </a>
-                  ) : (
-                    <>Email me at <strong>{portfolio.email}</strong></>
-                  )}{' '}
-                  — your message will be pre-filled.
+                  ✓ Email client opened with your message pre-filled. Click Send to deliver it!
                 </p>
               )}
 

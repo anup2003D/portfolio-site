@@ -20,7 +20,7 @@ async def seed():
         email="anupdutta03work@gmail.com",
         phone="+91 8017330067",
         location="India",
-        resumeLink="/Goldman Sachs Application.png",
+        resumeLink="/Anup_Dutta_New_Resume.pdf",
         social={
             "github": "https://github.com/anup2003D",
             "linkedin": "https://www.linkedin.com/in/anup-dutta-9198171b6/",

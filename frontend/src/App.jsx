@@ -56,6 +56,7 @@ function Starfield() {
 }
 
 /* CrewmateCursor removed — using default system cursor */
+/* AUDIO MANAGER — DISABLED: Among_us_bgm.mp3, kill_sound.mp3 auto-start removed */
 
 /* ─────────────────────────────────────────
    KILL ANIMATION OVERLAY
@@ -154,14 +155,13 @@ function KillOverlay({ active, onDone }) {
 }
 
 /* ─────────────────────────────────────────
-   AUDIO MANAGER
-   Among_us_bgm.mp3 loops the whole session,
-   auto-starting right after the loading screen.
-   kill_sound plays on every kill animation.
-   Files live in /public/audio/
+   AUDIO MANAGER — DISABLED
+   Among_us_bgm.mp3 and kill_sound.mp3 removed.
+   kill sound functionality disabled.
+   Files live in /public/audio/ [disabled]
 ───────────────────────────────────────── */
 function useAudio(loadingDone) {
-  const bgRef    = useRef(null);
+  /* const bgRef    = useRef(null);
   const killRef  = useRef(null);
   const started  = useRef(false);
 
@@ -177,9 +177,9 @@ function useAudio(loadingDone) {
       bgRef.current?.pause();
       killRef.current?.pause();
     };
-  }, []);
+  }, []); */
 
-  // Auto-start BGM the moment the loading screen finishes.
+  /* // Auto-start BGM the moment the loading screen finishes.
   // The loading_sound that played during the loading screen
   // already unlocked the browser's autoplay gate, so we can
   // play without waiting for another user click.
@@ -197,16 +197,16 @@ function useAudio(loadingDone) {
       window.addEventListener('click',   unlock, { once: true });
       window.addEventListener('keydown', unlock, { once: true });
     });
-  }, [loadingDone]);
+  }, [loadingDone]); */
 
-  const playKillSound = useCallback(() => {
+  /* const playKillSound = useCallback(() => {
     if (killRef.current) {
       killRef.current.currentTime = 0;
       killRef.current.play().catch(() => {});
     }
-  }, []);
+  }, []); */
 
-  return { playKillSound };
+  return { playKillSound: () => { } };
 }
 
 /* ─────────────────────────────────────────
@@ -269,8 +269,8 @@ function AppContent() {
   useScrollReveal(ready);
   useProjectSlide(ready);
 
-  /* Audio hook still used for loading screen only */
-  const { playKillSound } = useAudio(loadingDone);
+  /* Audio hook DISABLED — playKillSound not functional */
+  {/* const { playKillSound } = useAudio(loadingDone); */ }
 
   return (
     <>

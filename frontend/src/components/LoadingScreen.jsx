@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 /*
-  LOADING SCREEN — Among Us theme
+  LOADING SCREEN — Among Us theme (AUDIO DISABLED)
   Shows "Welcome Crewmate" intro before the portfolio loads.
-  Plays /public/audio/loading_sound.mp3 during the sequence.
+  /// Plays /public/audio/loading_sound.mp3 [DISABLED] during the sequence.
   Calls onDone() when animation finishes (~3.8s).
 */
 export default function LoadingScreen({ onDone }) {
@@ -21,10 +21,10 @@ export default function LoadingScreen({ onDone }) {
   ];
 
   useEffect(() => {
-    // Play loading sound
-    audioRef.current = new Audio('/audio/loading_sound.mp3');
+    // Play loading sound [DISABLED]
+    /* audioRef.current = new Audio('/audio/loading_sound.mp3');
     audioRef.current.volume = 0.5;
-    audioRef.current.play().catch(() => {}); // silently fail if file not added yet
+    audioRef.current.play().catch(() => {}); // silently fail if file not added yet */
 
     // Phase timeline
     const t1 = setTimeout(() => setPhase('text'),  600);

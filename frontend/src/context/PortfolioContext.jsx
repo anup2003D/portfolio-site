@@ -1,10 +1,9 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { api } from '../api/client';
+import { createContext, useContext, useState } from 'react';
 
 const PortfolioContext = createContext(null);
 
-/* ── Fallback data (used when backend is unavailable) ── */
-const FALLBACK_PORTFOLIO = {
+/* ── Portfolio Data ── */
+const PORTFOLIO_DATA = {
   name: "Anup Dutta",
   title: "Data Analyst & Developer",
   tagline: "Turning data into insights and creating meaningful digital experiences",
@@ -25,7 +24,7 @@ const FALLBACK_PORTFOLIO = {
   },
 };
 
-const FALLBACK_PROJECTS = [
+const PROJECTS_DATA = [
   {
     _id: "fb-1",
     title: "House Price Prediction",
@@ -83,7 +82,7 @@ const FALLBACK_PROJECTS = [
   },
 ];
 
-const FALLBACK_EXPERIENCES = [
+const EXPERIENCES_DATA = [
   {
     _id: "fb-exp-1",
     company: "Arohanum Elevate",
@@ -98,24 +97,9 @@ const FALLBACK_EXPERIENCES = [
     technologies: ["Python", "Tableau", "SQL", "Power BI", "ClickUP"],
     order: 1,
   },
-
-  // {
-  //   _id: "fb-exp-2",
-  //   company: "Freelance",
-  //   position: "Data Science Developer",
-  //   period: "Jan 2023 - May 2024",
-  //   location: "Remote",
-  //   description: [
-  //     "Built machine learning models for customer segmentation and predictive analysis",
-  //     "Created automated data pipelines for real-time analytics",
-  //     "Developed web applications integrating data visualization components",
-  //   ],
-  //   technologies: ["Python", "React", "FastAPI", "MongoDB"],
-  //   order: 2,
-  // },
 ];
 
-const FALLBACK_SKILLS = [
+const SKILLS_DATA = [
   {
     _id: "fb-sk-1",
     category: "data-analysis",
@@ -171,89 +155,30 @@ const FALLBACK_SKILLS = [
 ];
 
 export function PortfolioProvider({ children }) {
-  const [portfolio, setPortfolio] = useState(null);
-  const [projects, setProjects] = useState([]);
-  const [experiences, setExperiences] = useState([]);
-  const [skillCategories, setSkillCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [portfolio, setPortfolio] = useState(PORTFOLIO_DATA);
+  const [projects, setProjects] = useState(PROJECTS_DATA);
+  const [experiences, setExperiences] = useState(EXPERIENCES_DATA);
+  const [skillCategories, setSkillCategories] = useState(SKILLS_DATA);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [usingFallback, setUsingFallback] = useState(false);
-
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [p, proj, exp, skills] = await Promise.all([
-        api.getPortfolio(),
-        api.getProjects(),
-        api.getExperiences(),
-        api.getSkills(),
-      ]);
-      setPortfolio(p);
-      setProjects(proj);
-      setExperiences(exp);
-      setSkillCategories(skills);
-    } catch (err) {
-      // Backend unavailable — use fallback data so the site still works
-      console.warn('Backend unavailable, using fallback data:', err.message);
-      setPortfolio(FALLBACK_PORTFOLIO);
-      setProjects(FALLBACK_PROJECTS);
-      setExperiences(FALLBACK_EXPERIENCES);
-      setSkillCategories(FALLBACK_SKILLS);
-      setUsingFallback(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
-
-  const refetch = fetchAll;
-
-  const isDev = import.meta.env.DEV;
 
   return (
     <PortfolioContext.Provider
       value={{
         portfolio,
+        setPortfolio,
         projects,
+        setProjects,
         experiences,
+        setExperiences,
         skillCategories,
+        setSkillCategories,
         loading,
         error,
-        refetch,
-        usingFallback,
+        refetch: () => {},
       }}
     >
       {children}
-      {/* Dev-only notice — invisible in production builds */}
-      {isDev && usingFallback && (
-        <div
-          role="status"
-          aria-live="polite"
-          style={{
-            position: 'fixed',
-            bottom: 16,
-            right: 16,
-            zIndex: 99999,
-            background: 'rgba(250, 200, 0, 0.92)',
-            color: '#1a1a00',
-            padding: '10px 16px',
-            borderRadius: 6,
-            fontSize: 12,
-            fontFamily: 'monospace',
-            maxWidth: 280,
-            lineHeight: 1.5,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-            pointerEvents: 'none',
-          }}
-        >
-          ⚠️ <strong>DEV:</strong> API unreachable — using fallback data.
-          Check backend/ALLOWED_ORIGINS.
-        </div>
-      )}
     </PortfolioContext.Provider>
   );
 }
